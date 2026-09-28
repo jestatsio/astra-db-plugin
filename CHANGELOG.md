@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- The Claude Code manifest no longer lists `hooks/hooks.json`. Claude Code loads that file by default, so the extra entry registered it twice.
+- The Claude Code manifest sets `documentationUrl`, `supportUrl`, and `privacyPolicyUrl`, so the plugin directory links to this repository's README, issues, and privacy policy.
+
 ## 2.0.0 — 2026-09-24
 
 **2.0: one first-party MCP server, one source tree for every agent, and a one-command install.** This is a breaking release; see *Upgrading from 1.x* below.
