@@ -21,7 +21,7 @@ import { login } from "./login.js";
 import { serve } from "./serve.js";
 import { CancelledError, terminalIO } from "./term.js";
 
-const HELP = `astra-mcp ${VERSION} — Astra DB for AI agents
+const HELP = `astra-mcp ${VERSION} — unofficial Astra DB integration by JEStats
 
 Usage
   npx -y @erichare/astra-mcp <command> [options]
@@ -50,7 +50,7 @@ Options
   --json            doctor: machine-readable output
   --version, -v     print the version
 
-Docs: https://github.com/erichare/astra-db-plugin`;
+Docs: https://github.com/jestatsio/astra-db-plugin`;
 
 function parse(argv: string[]) {
   return parseArgs({

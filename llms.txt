@@ -1,25 +1,25 @@
-# Astra DB for Agents
+# JEStats Astra DB Plugin
 
-> An MCP server (`@erichare/astra-mcp`) and agent plugin that give coding agents live access to Astra DB (DataStax / IBM): schema inspection, filtered queries, vector and hybrid search, guarded writes and schema changes, interactive MCP Apps views, and about 1,660 documentation-derived Data API examples for Python, TypeScript, Java, C#, and Go. Works with Claude Code, OpenAI Codex, Cursor, VS Code, Windsurf, Gemini CLI, Claude Desktop, IBM Bob, and, through a hosted OAuth endpoint, ChatGPT and claude.ai.
+> Unofficial, community-maintained integration by JEStats (https://jestats.io), not affiliated with or endorsed by DataStax or IBM. The MCP server (`@erichare/astra-mcp`) and agent plugin give coding agents live access to Astra DB: schema inspection, filtered queries, vector and hybrid search, guarded writes and schema changes, interactive MCP Apps views, and about 1,660 documentation-derived Data API examples for Python, TypeScript, Java, C#, and Go. Works with Claude Code, OpenAI Codex, Cursor, VS Code, Windsurf, Gemini CLI, Claude Desktop, IBM Bob, and, through a hosted OAuth endpoint, ChatGPT and claude.ai.
 
 Install: `npx -y @erichare/astra-mcp init` configures detected agents, then `login` writes ASTRA_DB_APPLICATION_TOKEN, ASTRA_DB_API_ENDPOINT, and ASTRA_DB_KEYSPACE to a git-ignored .env. Tokens are never pasted into chat. Destructive operations (drop, bulk update/delete) require the user's confirmation.
 
 ## Docs
 
-- [README](https://github.com/erichare/astra-db-plugin/blob/main/README.md): overview, quickstart, supported agents
-- [Tools reference](https://github.com/erichare/astra-db-plugin/blob/main/docs/tools.md): all 18 tools, arguments, confirmation flow, error codes
-- [Configuration](https://github.com/erichare/astra-db-plugin/blob/main/docs/configuration.md): credential resolution order, variables, manual agent setup
-- [Security model](https://github.com/erichare/astra-db-plugin/blob/main/docs/security.md): writes, confirmations, credential guard hook, hosted OAuth
-- [Hosted server](https://github.com/erichare/astra-db-plugin/blob/main/docs/hosted.md): OAuth, headers, self-hosting on Vercel
-- [Troubleshooting](https://github.com/erichare/astra-db-plugin/blob/main/docs/troubleshooting.md): error codes and fixes
+- [README](https://github.com/jestatsio/astra-db-plugin/blob/main/README.md): overview, quickstart, supported agents
+- [Tools reference](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/tools.md): all 18 tools, arguments, confirmation flow, error codes
+- [Configuration](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/configuration.md): credential resolution order, variables, manual agent setup
+- [Security model](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/security.md): writes, confirmations, credential guard hook, hosted OAuth
+- [Hosted server](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/hosted.md): OAuth, headers, self-hosting on Vercel
+- [Troubleshooting](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/troubleshooting.md): error codes and fixes
 
 ## Skills
 
-- [astra-toolkit](https://github.com/erichare/astra-db-plugin/blob/main/skills/astra-toolkit/SKILL.md): Data API data modeling (Collections vs Tables), Astra CLI, architecture, and client examples with per-language indexes
-- [astra-widgets](https://github.com/erichare/astra-db-plugin/blob/main/skills/astra-widgets/SKILL.md): interactive views for overview, schema, explorer, and search results
+- [astra-toolkit](https://github.com/jestatsio/astra-db-plugin/blob/main/skills/astra-toolkit/SKILL.md): Data API data modeling (Collections vs Tables), Astra CLI, architecture, and client examples with per-language indexes
+- [astra-widgets](https://github.com/jestatsio/astra-db-plugin/blob/main/skills/astra-widgets/SKILL.md): interactive views for overview, schema, explorer, and search results
 
 ## Optional
 
-- [IBM Bob](https://github.com/erichare/astra-db-plugin/blob/main/docs/bob.md)
-- [Privacy](https://github.com/erichare/astra-db-plugin/blob/main/docs/privacy.md)
-- [Changelog](https://github.com/erichare/astra-db-plugin/blob/main/CHANGELOG.md)
+- [IBM Bob](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/bob.md)
+- [Privacy](https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md)
+- [Changelog](https://github.com/jestatsio/astra-db-plugin/blob/main/CHANGELOG.md)

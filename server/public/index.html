@@ -4,25 +4,25 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="light dark">
-<title>Astra DB MCP</title>
-<meta name="description" content="Astra DB for AI agents: an MCP server with live data tools, vector search, guarded writes, and interactive views.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%237C3AED'/%3E%3Cg fill='none' stroke='%23fff' stroke-width='3.2' stroke-linecap='round'%3E%3Cellipse cx='27' cy='19' rx='13' ry='5'/%3E%3Cpath d='M14 19v22c0 2.8 5.8 5 13 5s13-2.2 13-5V19'/%3E%3Cpath d='M14 30c0 2.8 5.8 5 13 5s13-2.2 13-5'/%3E%3C/g%3E%3Cg fill='%23fff'%3E%3Ccircle cx='47' cy='39' r='3.2'/%3E%3Ccircle cx='52' cy='26' r='2.2'/%3E%3Ccircle cx='43' cy='50' r='2.2'/%3E%3C/g%3E%3C/svg%3E">
+<title>JEStats Astra DB Plugin · unofficial integration</title>
+<meta name="description" content="Unofficial Astra DB plugin by JEStats. Explore, query, and build from your coding agent, with guarded writes and interactive views.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22512%22%20height%3D%22512%22%20viewBox%3D%220%200%2064%2064%22%20role%3D%22img%22%20aria-label%3D%22JEStats%20Astra%20DB%20Plugin%22%3E%0A%20%20%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2214%22%20fill%3D%22%23111827%22%2F%3E%0A%20%20%3Cg%20fill%3D%22none%22%20stroke%3D%22%23FAF9F5%22%20stroke-width%3D%223%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%0A%20%20%20%20%3Cellipse%20cx%3D%2224%22%20cy%3D%2219%22%20rx%3D%2212%22%20ry%3D%225%22%2F%3E%0A%20%20%20%20%3Cpath%20d%3D%22M12%2019v24c0%202.8%205.4%205%2012%205s12-2.2%2012-5V19M12%2031c0%202.8%205.4%205%2012%205s12-2.2%2012-5%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%20%20%3Cg%20fill%3D%22%23D9531E%22%3E%0A%20%20%20%20%3Crect%20x%3D%2242%22%20y%3D%2234%22%20width%3D%224%22%20height%3D%2214%22%20rx%3D%222%22%2F%3E%0A%20%20%20%20%3Crect%20x%3D%2249%22%20y%3D%2225%22%20width%3D%224%22%20height%3D%2223%22%20rx%3D%222%22%2F%3E%0A%20%20%3C%2Fg%3E%0A%20%20%3Ccircle%20cx%3D%2244%22%20cy%3D%2223%22%20r%3D%222%22%20fill%3D%22%23FAF9F5%22%2F%3E%0A%20%20%3Cpath%20d%3D%22M41%2052h14%22%20stroke%3D%22%23FAF9F5%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%2F%3E%0A%3C%2Fsvg%3E">
 <style>
-  :root { --bg: #ffffff; --fg: #111827; --muted: #6b7280; --card: #f5f3ff; --line: #e5e7eb; --code: #f3f4f6; --accent: #6d28d9; --accent-2: #7c3aed; }
-  @media (prefers-color-scheme: dark) { :root { --bg: #0b0f19; --fg: #f9fafb; --muted: #9ca3af; --card: #1a1530; --line: #262b36; --code: #161b26; --accent: #c4b5fd; --accent-2: #a78bfa; } }
+  :root { --bg: #faf9f5; --fg: #111827; --muted: #4b5563; --card: #f9e7df; --line: #e8e3da; --code: #f0ece5; --accent: #b64013; --accent-2: #d9531e; }
+  @media (prefers-color-scheme: dark) { :root { --bg: #111827; --fg: #faf9f5; --muted: #d1d5db; --card: #402719; --line: #374151; --code: #1f2937; --accent: #ffb18e; --accent-2: #ffb18e; } }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif; }
   main { max-width: 760px; margin: 0 auto; padding: 56px 20px 72px; }
   header { display: flex; gap: 18px; align-items: center; margin-bottom: 8px; }
   header svg { flex: none; width: 56px; height: 56px; }
-  h1 { margin: 0; font-size: 30px; letter-spacing: -0.02em; background: linear-gradient(90deg, var(--accent-2), #a78bfa); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  h1 { margin: 0; font-size: 30px; letter-spacing: -0.02em; color: var(--fg); }
   .lede { color: var(--muted); margin: 4px 0 32px; }
   h2 { font-size: 18px; margin: 36px 0 10px; }
   code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 14px; }
   pre { background: var(--code); border: 1px solid var(--line); border-radius: 10px; padding: 12px 14px; overflow-x: auto; margin: 8px 0; }
   .url { display: flex; gap: 8px; align-items: stretch; background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 8px 8px 8px 16px; }
   .url code { flex: 1; align-self: center; font-size: 15px; overflow-wrap: anywhere; }
-  button { font: inherit; font-size: 14px; border: 0; border-radius: 8px; padding: 8px 14px; background: #6d28d9; color: #fff; cursor: pointer; }
+  button { font: inherit; font-size: 14px; border: 0; border-radius: 8px; padding: 8px 14px; background: #b64013; color: #fff; cursor: pointer; }
   button:focus-visible, a:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
   ol, ul { padding-left: 22px; }
   li { margin: 4px 0; }
@@ -36,19 +36,47 @@
 <body>
 <main>
   <header>
-    <svg viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#8B5CF6"/><stop offset="1" stop-color="#5B21B6"/></linearGradient></defs><rect width="64" height="64" rx="14" fill="url(#g)"/><g fill="none" stroke="#fff" stroke-width="3.2" stroke-linecap="round"><ellipse cx="27" cy="19" rx="13" ry="5"/><path d="M14 19v22c0 2.8 5.8 5 13 5s13-2.2 13-5V19"/><path d="M14 30c0 2.8 5.8 5 13 5s13-2.2 13-5"/></g><path d="M47 39 52 26M47 39l-4 11" stroke="#fff" stroke-width="1.6" opacity=".75"/><g fill="#fff"><circle cx="47" cy="39" r="3.2"/><circle cx="52" cy="26" r="2.2"/><circle cx="43" cy="50" r="2.2"/></g></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" role="img" aria-label="JEStats Astra DB Plugin">
+  <rect width="64" height="64" rx="14" fill="#111827"/>
+  <g fill="none" stroke="#FAF9F5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="24" cy="19" rx="12" ry="5"/>
+    <path d="M12 19v24c0 2.8 5.4 5 12 5s12-2.2 12-5V19M12 31c0 2.8 5.4 5 12 5s12-2.2 12-5"/>
+  </g>
+  <g fill="#D9531E">
+    <rect x="42" y="34" width="4" height="14" rx="2"/>
+    <rect x="49" y="25" width="4" height="23" rx="2"/>
+  </g>
+  <circle cx="44" cy="23" r="2" fill="#FAF9F5"/>
+  <path d="M41 52h14" stroke="#FAF9F5" stroke-width="2" stroke-linecap="round"/>
+</svg>
     <div>
-      <h1>Astra DB MCP</h1>
+      <h1>JEStats Astra DB Plugin</h1>
     </div>
   </header>
-  <p class="lede">Explore, query, vector-search, and change your Astra DB from ChatGPT, Claude, or any MCP client, with interactive views. Nothing is stored here: each request carries its own credentials.</p>
+  <p class="lede">An unofficial Astra DB integration by <a href="https://jestats.io">JEStats</a>. Explore, query, and build from your coding agent, with interactive views and guarded writes. Not affiliated with or endorsed by DataStax or IBM.</p>
+
+  <h2>Choose your coding assistant</h2>
+  <p>The installer detects supported assistants. Already configured the Astra CLI? Add <code>--no-login</code> to reuse its profile without copying the token.</p>
+  <pre>npx -y @erichare/astra-mcp init</pre>
+  <div class="buttons">
+    <a href="https://github.com/jestatsio/astra-db-plugin#works-with">Claude Code · Codex · Cursor · VS Code · Bob</a>
+    <a href="https://github.com/jestatsio/astra-db-plugin/releases/latest/download/astra-db.mcpb">Claude Desktop bundle (.mcpb)</a>
+  </div>
+  <p>Community marketplace installs:</p>
+  <pre>claude plugin marketplace add jestatsio/astra-db-plugin
+claude plugin install astra-db@astra-db-marketplace</pre>
+  <pre>codex plugin marketplace add jestatsio/astra-db-plugin
+codex plugin add astra-db@astra-db-marketplace</pre>
+
+  <h2>Connect a hosted assistant</h2>
+  <p>For ChatGPT or claude.ai, add this remote MCP URL. OAuth authorizes the JEStats connector and still requires an Astra application token.</p>
 
   <div class="url">
     <code id="endpoint">https://astra-widgets-mcp.vercel.app/mcp</code>
     <button type="button" id="copy">Copy</button>
   </div>
 
-  <h2>Connect with OAuth</h2>
+  <h2>Authorize the connection</h2>
   <ol>
     <li><b>ChatGPT:</b> turn on developer mode, add a custom connector, paste the URL above, and choose OAuth.</li>
     <li><b>claude.ai / Claude Desktop:</b> Settings → Connectors → Add custom connector, then paste the URL.</li>
@@ -66,15 +94,15 @@ X-Astra-Allow-Writes: true      # optional; read-only without it</pre>
   <div class="buttons">
     <a href="https://cursor.com/en/install-mcp?name=astra-db&amp;config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBlcmljaGFyZS9hc3RyYS1tY3BAMiJdfQ%3D%3D">Add to Cursor</a>
     <a href="https://insiders.vscode.dev/redirect/mcp/install?name=astra-db&amp;config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40erichare%2Fastra-mcp%402%22%5D%2C%22env%22%3A%7B%22ASTRA_MCP_PROJECT_DIR%22%3A%22%24%7BworkspaceFolder%7D%22%2C%22ASTRA_MCP_CLIENT%22%3A%22vscode%22%7D%7D">Install in VS Code</a>
-    <a href="https://github.com/erichare/astra-db-plugin/releases/latest/download/astra-db.mcpb">Claude Desktop bundle (.mcpb)</a>
-    <a href="https://github.com/erichare/astra-db-plugin#works-with">Claude Code, Codex, Bob, and more</a>
+    <a href="https://github.com/jestatsio/astra-db-plugin/releases/latest/download/astra-db.mcpb">Claude Desktop bundle (.mcpb)</a>
+    <a href="https://github.com/jestatsio/astra-db-plugin#works-with">Claude Code, Codex, Bob, and more</a>
   </div>
 
   <footer>
-    <a href="https://github.com/erichare/astra-db-plugin">Source and documentation</a> ·
-    <a href="https://github.com/erichare/astra-db-plugin/blob/main/docs/hosted.md">Hosted server details</a> ·
-    <a href="https://github.com/erichare/astra-db-plugin/blob/main/docs/privacy.md">Privacy</a><br>
-    A community project, not an official DataStax or IBM product.
+    <a href="https://github.com/jestatsio/astra-db-plugin">Source and documentation</a> ·
+    <a href="https://github.com/jestatsio/astra-db-plugin/blob/main/docs/hosted.md">Hosted server details</a> ·
+    <a href="https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md">Privacy</a><br>
+    Maintained by <a href="https://jestats.io">JEStats</a>. Unofficial, community-maintained integration; not affiliated with or endorsed by DataStax or IBM. Community marketplace availability does not imply official store approval.
   </footer>
 </main>
 <script>

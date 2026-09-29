@@ -15,9 +15,9 @@ RUN cd server && node scripts/build.mjs
 FROM node:22-alpine
 LABEL org.opencontainers.image.title="astra-mcp" \
       org.opencontainers.image.description="Astra DB MCP server: schema, find, vector search, guarded writes, interactive views" \
-      org.opencontainers.image.source="https://github.com/erichare/astra-db-plugin" \
+      org.opencontainers.image.source="https://github.com/jestatsio/astra-db-plugin" \
       org.opencontainers.image.licenses="Apache-2.0" \
-      io.modelcontextprotocol.server.name="io.github.erichare/astra-mcp"
+      io.modelcontextprotocol.server.name="io.github.jestatsio/astra-mcp"
 WORKDIR /app
 COPY --from=build /repo/server/dist/cli.js /repo/server/dist/assets.json /repo/server/THIRD_PARTY_NOTICES.md /repo/LICENSE ./
 USER node

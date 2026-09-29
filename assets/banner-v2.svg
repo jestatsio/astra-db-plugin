@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="320" viewBox="0 0 1280 320" role="img" aria-label="JEStats Astra DB Plugin. Unofficial integration for Astra DB. Explore, query, and build with your coding agent.">
+  <rect width="1280" height="320" rx="24" fill="#FAF9F5"/>
+  <path d="M0 296h1280v24H0z" fill="#E8E3DA"/>
+  <g transform="translate(58 74) scale(2.6)">
+    <rect width="64" height="64" rx="14" fill="#111827"/>
+    <g fill="none" stroke="#FAF9F5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+      <ellipse cx="24" cy="19" rx="12" ry="5"/>
+      <path d="M12 19v24c0 2.8 5.4 5 12 5s12-2.2 12-5V19M12 31c0 2.8 5.4 5 12 5s12-2.2 12-5"/>
+    </g>
+    <g fill="#D9531E"><rect x="42" y="34" width="4" height="14" rx="2"/><rect x="49" y="25" width="4" height="23" rx="2"/></g>
+    <circle cx="44" cy="23" r="2" fill="#FAF9F5"/>
+    <path d="M41 52h14" stroke="#FAF9F5" stroke-width="2" stroke-linecap="round"/>
+  </g>
+  <g font-family="'Plus Jakarta Sans', 'Segoe UI', Helvetica, Arial, sans-serif">
+    <text x="266" y="93" font-size="22" font-weight="700" letter-spacing="3" fill="#B64013">JESTATS · JESTATS.IO</text>
+    <text x="262" y="157" font-size="56" font-weight="700" letter-spacing="-1.6" fill="#111827">Astra DB Plugin</text>
+    <text x="266" y="204" font-size="24" fill="#4B5563">Explore, query, and build with your coding agent.</text>
+    <rect x="266" y="227" width="406" height="34" rx="17" fill="#E8E3DA"/>
+    <text x="284" y="250" font-size="16" font-weight="600" fill="#111827">UNOFFICIAL · COMMUNITY MAINTAINED</text>
+  </g>
+  <path d="M1110 89v134m-27-27h54m-35-76h70m-78 43h50" stroke="#D9531E" stroke-width="4" stroke-linecap="round" opacity=".65"/>
+</svg>

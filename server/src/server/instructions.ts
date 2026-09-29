@@ -1,7 +1,7 @@
 /** Server instructions (kept under ~1.8k chars; hosts truncate at 2k). */
 export function instructions(options: { allowWrites: boolean; hosted: boolean }): string {
   return [
-    "Astra DB (DataStax / IBM) tools: inspect, query, vector-search, and change data in the user's databases via the Data API.",
+    "Unofficial JEStats integration for Astra DB (DataStax / IBM): inspect, query, vector-search, and change data via the Data API.",
     "",
     "Targeting: every data tool takes optional `database` (name, id, or endpoint URL) and `keyspace`; omit both for the configured default. Use list_databases when unsure which database the user means.",
     "",

@@ -1,12 +1,14 @@
 # Hosted server
 
+This is the unofficial JEStats Astra DB Plugin. It is not affiliated with or endorsed by DataStax or IBM. Its OAuth flow authorizes a connection to this plugin using your Astra application token; it does not offer Astra account login or remove Astra's token requirement.
+
 The same server runs as a stateless streamable-HTTP endpoint for clients that can't launch a local process, such as ChatGPT and claude.ai:
 
 ```
 https://astra-widgets-mcp.vercel.app/mcp
 ```
 
-It has the full tool set with interactive MCP Apps views. Writes are off unless you grant them for that connection. Nothing is stored server-side: each request carries its own credentials, either inside an encrypted OAuth token or in headers.
+It has the full tool set with interactive MCP Apps views. Writes are off unless you grant them for that connection. Credentials are carried in each request, either inside an encrypted OAuth token or in headers. An optional Redis replay store retains token-family identifiers and expiry/revocation state, without storing your Astra token.
 
 ## Connect with OAuth
 

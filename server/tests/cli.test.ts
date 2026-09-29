@@ -42,16 +42,16 @@ describe("init / uninstall", () => {
     const result = await init(io, env, { agents: ["claude-code", "codex", "cursor", "windsurf", "claude-desktop", "gemini"] });
     expect(result.failed).toBe(0);
     expect(calls).toEqual([
-      "claude plugin marketplace add erichare/astra-db-plugin",
+      "claude plugin marketplace add jestatsio/astra-db-plugin",
       "claude plugin install astra-db@astra-db-marketplace",
-      "codex plugin marketplace add erichare/astra-db-plugin",
+      "codex plugin marketplace add jestatsio/astra-db-plugin",
       "codex plugin add astra-db@astra-db-marketplace",
     ]);
     expect(json(join(home, ".cursor/mcp.json")).mcpServers["astra-db"]).toMatchObject({ command: "npx", args: ["-y", SERVER_SPEC], env: { ASTRA_MCP_PROJECT_DIR: "${workspaceFolder}" } });
     expect(json(join(home, ".codeium/windsurf/mcp_config.json")).mcpServers["astra-db"].args).toEqual(["-y", SERVER_SPEC]);
     expect(json(join(home, ".config/Claude/claude_desktop_config.json")).mcpServers["astra-db"]).toBeTruthy();
     expect(json(join(home, ".gemini/settings.json")).mcpServers["astra-db"]).toBeTruthy();
-    expect(io.lines.some((l) => l.includes("npx skills add erichare/astra-db-plugin"))).toBe(true);
+    expect(io.lines.some((l) => l.includes("npx skills add jestatsio/astra-db-plugin"))).toBe(true);
   });
 
   it("writes project-level VS Code config, preserving comments, replacing legacy entries, with a backup", async () => {

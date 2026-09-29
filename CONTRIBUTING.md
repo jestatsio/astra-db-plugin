@@ -7,7 +7,7 @@ Thanks for helping. Bug reports, fixes, new examples, and documentation are all 
 You need Node.js 22 (the tests use vitest 5, which needs Node 22.12 or newer; the published server runs on 20+). The example checks also use Python 3, Go, and a JDK.
 
 ```bash
-git clone https://github.com/erichare/astra-db-plugin && cd astra-db-plugin
+git clone https://github.com/jestatsio/astra-db-plugin && cd astra-db-plugin
 cd server && npm ci && npm test && cd ..
 node --test tests/*.test.mjs
 ```

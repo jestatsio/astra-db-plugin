@@ -87,7 +87,7 @@ function execute(io: IO, steps: Step[], dryRun: boolean): { ok: number; failed: 
 }
 
 export async function init(io: IO, env: Env, options: InitOptions = {}): Promise<{ agents: AgentId[]; failed: number }> {
-  io.intro("Astra DB for your agents");
+  io.intro("JEStats Astra DB Plugin · unofficial integration");
   const agents = await chooseAgents(io, env, options.agents);
   if (!agents.length) {
     io.outro("Nothing selected.");
@@ -103,7 +103,7 @@ export async function init(io: IO, env: Env, options: InitOptions = {}): Promise
   const { failed } = execute(io, steps, Boolean(options.dryRun));
   const editors = agents.filter((a) => ["cursor", "vscode", "windsurf", "gemini"].includes(a));
   if (editors.length) {
-    io.info("Tip: add the Astra DB knowledge skill to those agents too: npx skills add erichare/astra-db-plugin -s astra-toolkit");
+    io.info("Tip: add the Astra DB knowledge skill to those agents too: npx skills add jestatsio/astra-db-plugin -s astra-toolkit");
   }
   if (agents.includes("claude-desktop")) {
     io.info("Claude Desktop has no project folder: connect with `npx -y @erichare/astra-mcp login --global`, or install the one-click .mcpb from the GitHub release.");

@@ -16,7 +16,7 @@ mkdirSync(join(stage, "server"), { recursive: true });
 const manifest = JSON.parse(readFileSync(join(root, "mcpb/manifest.json"), "utf8"));
 manifest.version = pkg.version;
 writeFileSync(join(stage, "manifest.json"), `${JSON.stringify(manifest, null, 2)}\n`);
-copyFileSync(join(root, "mcpb/icon.png"), join(stage, "icon.png"));
+copyFileSync(join(root, "..", "assets/icon-v2.png"), join(stage, "icon.png"));
 copyFileSync(join(root, "dist/cli.js"), join(stage, "server/cli.js"));
 copyFileSync(join(root, "dist/assets.json"), join(stage, "server/assets.json"));
 if (existsSync(join(root, "THIRD_PARTY_NOTICES.md"))) cpSync(join(root, "THIRD_PARTY_NOTICES.md"), join(stage, "THIRD_PARTY_NOTICES.md"));

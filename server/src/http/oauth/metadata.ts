@@ -9,8 +9,8 @@ export function protectedResourceMetadata(origin: string): Response {
     authorization_servers: [origin],
     bearer_methods_supported: ["header"],
     scopes_supported: SCOPES,
-    resource_name: "Astra DB MCP",
-    resource_documentation: "https://github.com/erichare/astra-db-plugin/blob/main/docs/hosted.md",
+    resource_name: "JEStats Astra DB Plugin (unofficial)",
+    resource_documentation: "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/hosted.md",
   });
 }
 
@@ -28,7 +28,7 @@ export function authorizationServerMetadata(origin: string): Response {
     scopes_supported: SCOPES,
     client_id_metadata_document_supported: true,
     authorization_response_iss_parameter_supported: true,
-    service_documentation: "https://github.com/erichare/astra-db-plugin/blob/main/docs/hosted.md",
+    service_documentation: "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/hosted.md",
   });
 }
 

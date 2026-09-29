@@ -1,7 +1,7 @@
 #!/usr/bin/env sh
 # Astra DB for AI agents — one-line installer.
 #
-#   curl -fsSL https://raw.githubusercontent.com/erichare/astra-db-plugin/main/install.sh | sh
+#   curl -fsSL https://raw.githubusercontent.com/jestatsio/astra-db-plugin/main/install.sh | sh
 #   curl -fsSL …/install.sh | sh -s -- --agents claude-code,cursor --yes
 #
 # Runs `npx @erichare/astra-mcp init` (detects your agents, installs the

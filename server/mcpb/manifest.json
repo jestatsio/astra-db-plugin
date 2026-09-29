@@ -2,22 +2,21 @@
   "$schema": "https://raw.githubusercontent.com/modelcontextprotocol/mcpb/main/dist/mcpb-manifest.schema.json",
   "manifest_version": "0.3",
   "name": "astra-db",
-  "display_name": "Astra DB",
+  "display_name": "JEStats Astra DB Plugin",
   "version": "2.0.0",
-  "description": "Inspect, query, vector-search, and safely change your Astra DB databases, with interactive views.",
-  "long_description": "Connects Claude to Astra DB (DataStax / IBM). Explore keyspaces, collections, and tables; read with filters; run vector and hybrid search; insert, update, and create schema — destructive operations always ask first. Results render as interactive views, and code_examples returns idiomatic client code for Python, TypeScript, Java, C#, and Go. Your token is stored in the OS keychain.",
+  "description": "Unofficial Astra DB integration by JEStats: query, vector search, guarded writes, and views.",
+  "long_description": "Unofficial, community-maintained integration by JEStats; not affiliated with or endorsed by DataStax or IBM. Connects Claude to Astra DB (DataStax / IBM). Explore keyspaces, collections, and tables; read with filters; run vector and hybrid search; insert, update, and create schema — destructive operations always ask first. Results render as interactive views, and code_examples returns idiomatic client code for Python, TypeScript, Java, C#, and Go. Reuse an Astra CLI profile or global login, or supply a token in this form to store it in the OS keychain.",
   "author": {
-    "name": "Eric Hare",
-    "email": "ericrhare@gmail.com",
-    "url": "https://github.com/erichare"
+    "name": "JEStats",
+    "url": "https://jestats.io"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/erichare/astra-db-plugin"
+    "url": "https://github.com/jestatsio/astra-db-plugin"
   },
-  "homepage": "https://github.com/erichare/astra-db-plugin",
-  "documentation": "https://github.com/erichare/astra-db-plugin#readme",
-  "support": "https://github.com/erichare/astra-db-plugin/issues",
+  "homepage": "https://github.com/jestatsio/astra-db-plugin",
+  "documentation": "https://github.com/jestatsio/astra-db-plugin#readme",
+  "support": "https://github.com/jestatsio/astra-db-plugin/issues",
   "icon": "icon.png",
   "license": "Apache-2.0",
   "keywords": [
@@ -29,7 +28,7 @@
     "database"
   ],
   "privacy_policies": [
-    "https://github.com/erichare/astra-db-plugin/blob/main/docs/privacy.md"
+    "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md"
   ],
   "server": {
     "type": "node",
@@ -139,9 +138,9 @@
     "token": {
       "type": "string",
       "title": "Astra application token",
-      "description": "AstraCS:… token from the Astra console (Settings → Tokens). Stored in your OS keychain.",
+      "description": "Optional: leave empty to reuse an Astra CLI profile or login --global. A token supplied here is stored in your OS keychain. Never paste tokens into chat.",
       "sensitive": true,
-      "required": true
+      "required": false
     },
     "endpoint": {
       "type": "string",
