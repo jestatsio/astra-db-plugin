@@ -39,14 +39,14 @@ async function consumeAuthorizationCode(raw: string, code: CodeToken, now: numbe
  * it was copied, so the whole rotation chain is revoked and the user reconnects.
  * Returns an error response, or null to proceed.
  */
-async function consumeRefreshToken(raw: string, token: RefreshToken | LegacyRefreshToken, now: number, deps: OAuthDeps): Promise<Response | null> {
+async function consumeRefreshToken(raw: string, token: RefreshToken | LegacyRefreshToken, now: number, deps: OAuthDeps, fam: string): Promise<Response | null> {
   if (!deps.replay) return missingTokenStore();
-  const fam = "fam" in token ? token.fam : undefined;
-  const chainTtl = ("max" in token ? token.max : token.exp) - now;
+  // Legacy descendants get a fresh 90-day maximum on upgrade; revocation must cover it.
+  const chainTtl = "max" in token ? token.max - now : REFRESH_MAX_TTL;
   try {
-    if (fam && (await deps.replay.has(`fam:${fam}`))) return oauthError("invalid_grant", "This sign-in was revoked; reconnect.");
+    if (await deps.replay.has(`fam:${fam}`)) return oauthError("invalid_grant", "This sign-in was revoked; reconnect.");
     if (await deps.replay.claim(`rt:${await fingerprint(raw)}`, token.exp - now)) return null;
-    if (fam) await deps.replay.claim(`fam:${fam}`, chainTtl);
+    await deps.replay.claim(`fam:${fam}`, chainTtl);
     return oauthError("invalid_grant", "Refresh token was already used, so this sign-in has been revoked; reconnect.");
   } catch {
     return oauthError("temporarily_unavailable", "The token store is unavailable; try again shortly.", 503);
@@ -85,13 +85,15 @@ export async function handleToken(req: Request, deps: OAuthDeps): Promise<Respon
     if (token?.t !== "refresh") return oauthError("invalid_grant", "Unknown or malformed refresh token.");
     if (token.exp <= now) return oauthError("invalid_grant", "Refresh token expired; reconnect.");
     if ("grant" in token && p.client_id && p.client_id !== token.grant.client_id) return oauthError("invalid_grant", "client_id mismatch.");
-    const replayed = await consumeRefreshToken(p.refresh_token, token, now, deps);
+    // Tokens predating family IDs need a stable ID shared by their migration and replay checks.
+    const fam = "fam" in token && token.fam ? token.fam : `upgrade:${await fingerprint(p.refresh_token)}`;
+    const replayed = await consumeRefreshToken(p.refresh_token, token, now, deps, fam);
     if (replayed) return replayed;
-    if ("grant" in token) return issue(token.grant, now, token.max, deps, token.fam);
+    if ("grant" in token) return issue(token.grant, now, token.max, deps, fam);
     // v1.2.x (aw1) refresh token: upgrade to a read-only v2 grant.
     const origin = new URL(req.url).origin;
     const grant: Grant = { creds: token.creds, scope: [SCOPE_READ], client_id: token.client_id, aud: `${origin}/mcp` };
-    return issue(grant, now, now + REFRESH_MAX_TTL, deps);
+    return issue(grant, now, now + REFRESH_MAX_TTL, deps, fam);
   }
   return oauthError("unsupported_grant_type", "Use authorization_code or refresh_token.");
 }

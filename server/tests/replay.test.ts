@@ -3,26 +3,32 @@ import { describe, expect, it, vi } from "vitest";
 import { type Secrets, b64url, fingerprint, seal } from "../src/http/crypto.js";
 import { replayStoreFromEnv } from "../src/http/oauth/replay.js";
 import { handleOAuthRequest } from "../src/http/oauth/router.js";
-import { CODE_TTL, type CodeToken, type Grant, type OAuthDeps, type RefreshToken, type ReplayStore } from "../src/http/oauth/types.js";
+import { CODE_TTL, type CodeToken, type Grant, type LegacyRefreshToken, type OAuthDeps, type RefreshToken, type ReplayStore } from "../src/http/oauth/types.js";
 import { ENDPOINT, TOKEN } from "./helpers.js";
 
 const ORIGIN = "https://astra-mcp.test";
 const SECRETS: Secrets = { current: "test-secret-current" };
 const GRANT: Grant = { creds: { token: TOKEN, endpoint: ENDPOINT }, scope: ["astra:read"], client_id: "c1", aud: `${ORIGIN}/mcp` };
 
-function memoryStore(): ReplayStore & { keys: Set<string>; claims: { key: string; ttl: number }[] } {
+function memoryStore(now: () => number = () => 0): ReplayStore & { keys: Set<string>; claims: { key: string; ttl: number }[] } {
   const keys = new Set<string>();
+  const expires = new Map<string, number>();
   const claims: { key: string; ttl: number }[] = [];
+  const has = (key: string) => {
+    if ((expires.get(key) ?? 0) <= now()) keys.delete(key);
+    return keys.has(key);
+  };
   return {
     keys,
     claims,
     claim: async (key, ttl) => {
       claims.push({ key, ttl });
-      if (keys.has(key)) return false;
+      if (has(key)) return false;
       keys.add(key);
+      expires.set(key, now() + ttl);
       return true;
     },
-    has: async (key) => keys.has(key),
+    has: async (key) => has(key),
   };
 }
 
@@ -38,6 +44,15 @@ async function firstRefreshToken(): Promise<string> {
   const now = Math.floor(Date.now() / 1000);
   const token: RefreshToken = { t: "refresh", grant: GRANT, exp: now + 3600, max: now + 7200, fam: "family-1" };
   return seal(token, SECRETS);
+}
+
+async function refreshWithoutFamily(format: "aw1" | "aw2", now: number): Promise<string> {
+  if (format === "aw2") return seal({ t: "refresh", grant: GRANT, exp: now + 3600, max: now + 7200 }, SECRETS);
+  const payload: LegacyRefreshToken = { t: "refresh", creds: GRANT.creds, client_id: GRANT.client_id, exp: now + 3600 };
+  const key = await crypto.subtle.importKey("raw", await crypto.subtle.digest("SHA-256", new TextEncoder().encode(SECRETS.current)), "AES-GCM", false, ["encrypt"]);
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(payload))));
+  return `aw1.${b64url(iv)}.${b64url(cipher)}`;
 }
 
 const NOW = 1000;
@@ -149,6 +164,27 @@ describe("authorization code replay", () => {
 });
 
 describe("refresh token replay", () => {
+  for (const format of ["aw1", "aw2"] as const) {
+    it(`revokes migrated descendants when a ${format} token without a family is replayed`, async () => {
+      let now = NOW;
+      const replay = memoryStore(() => now);
+      const deps: OAuthDeps = { secrets: SECRETS, verify: async () => null, replay, now: () => now };
+      const original = await refreshWithoutFamily(format, now);
+      const first = await refresh(deps, original);
+      expect(first.status).toBe(200);
+      const successor = first.body.refresh_token!;
+      const replayed = await refresh(deps, original);
+      expect(replayed.status).toBe(400);
+      expect((await refresh(deps, successor)).status).toBe(400);
+
+      // Descendants must remain revoked after the original token and its use marker expire.
+      now += 3601;
+      const afterExpiry = await refresh(deps, successor);
+      expect(afterExpiry.status).toBe(400);
+      expect(afterExpiry.body.error_description).toMatch(/revoked/);
+    });
+  }
+
   it("rejects alternate refresh encodings that would bypass single use", async () => {
     const replay = memoryStore();
     const deps: OAuthDeps = { secrets: SECRETS, verify: async () => null, replay };

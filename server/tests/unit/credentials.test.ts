@@ -56,6 +56,10 @@ describe("dotenv", () => {
     expect(mergeDotenv("", { X: "1" })).toBe("X=1\n");
     expect(mergeDotenv("A=first\nA=second\nB=keep\n", { A: undefined })).toBe("B=keep\n");
   });
+  it("round trips a quoted Windows CLI path without interpreting its backslashes as newlines", () => {
+    const values = { ASTRARC: "C:\\new\\test team\\work.astrarc", CUSTOM: 'line one\n"quoted"' };
+    expect(parseDotenv(mergeDotenv("", values))).toEqual(values);
+  });
 });
 
 describe("astrarc", () => {

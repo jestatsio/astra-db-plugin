@@ -16,8 +16,18 @@ export function parseDotenv(text: string): Record<string, string> {
     let value = rest.trim();
     const quote = value[0];
     if ((quote === '"' || quote === "'") && value.lastIndexOf(quote) > 0) {
-      value = value.slice(1, value.lastIndexOf(quote));
-      if (quote === '"') value = value.replace(/\\n/g, "\n").replace(/\\"/g, '"');
+      const quoted = value.slice(0, value.lastIndexOf(quote) + 1);
+      value = quoted.slice(1, -1);
+      if (quote === '"') {
+        try {
+          // mergeDotenv uses JSON quoting; decode escapes once (Windows paths included).
+          value = JSON.parse(quoted) as string;
+        } catch {
+          // Also accept hand-written dotenv strings with non-JSON escape sequences.
+          value = value.replace(/\\([\\nrt"])/g, (_match, escaped: string) =>
+            ({ n: "\n", r: "\r", t: "\t" }[escaped] ?? escaped));
+        }
+      }
     } else {
       value = value.replace(/\s+#.*$/, "").trim();
     }

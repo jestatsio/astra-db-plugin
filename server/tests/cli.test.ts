@@ -13,6 +13,7 @@ import { init, uninstall } from "../src/cli/init.js";
 import { login } from "../src/cli/login.js";
 import { scriptedIO } from "../src/cli/term.js";
 import { CredentialResolver } from "../src/credentials/resolver.js";
+import { parseDotenv } from "../src/credentials/dotenv.js";
 import { createFakeState, fakeGateway } from "./fake.js";
 import { TOKEN } from "./helpers.js";
 
@@ -215,7 +216,7 @@ describe("login", () => {
     await login(io, gateway, { dir: cwd, home, env: {}, profile: "work", astrarc: config });
     const saved = readFileSync(join(cwd, ".env"), "utf8");
     expect(saved).toContain("ASTRA_PROFILE=work");
-    expect(saved).toContain(`ASTRARC=${config}`);
+    expect(parseDotenv(saved).ASTRARC).toBe(config);
     expect(saved).toContain("CUSTOM_SETTING=yes");
     expect(saved).not.toContain("AstraCS:");
     expect(environments).toEqual(["dev"]);
