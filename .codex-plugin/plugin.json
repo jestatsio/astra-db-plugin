@@ -1,14 +1,13 @@
 {
   "name": "astra-db",
   "version": "2.0.0",
-  "description": "Astra DB (DataStax / IBM) for coding agents: live database tools with interactive views, guarded writes and schema changes, vector and hybrid search, data-modeling and review skills, and 1,600+ idiomatic Data API snippets for Python, TypeScript, Java, C#, and Go.",
+  "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
   "author": {
-    "name": "Eric Hare",
-    "email": "ericrhare@gmail.com",
-    "url": "https://github.com/erichare"
+    "name": "JEStats",
+    "url": "https://jestats.io"
   },
-  "homepage": "https://github.com/erichare/astra-db-plugin",
-  "repository": "https://github.com/erichare/astra-db-plugin",
+  "homepage": "https://github.com/jestatsio/astra-db-plugin",
+  "repository": "https://github.com/jestatsio/astra-db-plugin",
   "license": "Apache-2.0",
   "keywords": [
     "astra",
@@ -57,21 +56,22 @@
     }
   },
   "interface": {
-    "displayName": "Astra DB",
-    "shortDescription": "Inspect, query, and vector-search Astra DB from Codex — with idiomatic client code in five languages.",
-    "longDescription": "Astra DB (DataStax / IBM) and HCD for Codex. The astra-db MCP server gives live tools — database overview, collection and table schemas, find, vector and hybrid search, counts, guarded inserts/updates/deletes, and schema changes that ask before anything destructive — plus canonical Data API snippets. Skills cover setup ($astra-db:setup — connect with `npx -y @erichare/astra-mcp login`, no token in chat), diagnosis ($astra-db:doctor), code review, data modeling, and migrations. Credentials come from your project's .env, environment, or Astra CLI profile.",
-    "developerName": "Eric Hare",
+    "displayName": "JEStats Astra DB Plugin",
+    "shortDescription": "Unofficial Astra DB tools by JEStats: explore, query, and vector-search with your coding agent.",
+    "longDescription": "Unofficial, community-maintained Astra DB integration by JEStats. Not affiliated with or endorsed by DataStax or IBM. Astra DB (DataStax / IBM) and HCD for Codex. The astra-db MCP server gives live tools — database overview, collection and table schemas, find, vector and hybrid search, counts, guarded inserts/updates/deletes, and schema changes that ask before anything destructive — plus canonical Data API snippets. Skills cover setup ($astra-db:setup — connect with `npx -y @erichare/astra-mcp login`, no token in chat), diagnosis ($astra-db:doctor), code review, data modeling, and migrations. Credentials come from your project's .env, environment, or Astra CLI profile.",
+    "developerName": "JEStats",
     "category": "Developer Tools",
     "capabilities": [
       "Interactive",
       "Read",
       "Write"
     ],
-    "websiteURL": "https://github.com/erichare/astra-db-plugin",
-    "privacyPolicyURL": "https://github.com/erichare/astra-db-plugin/blob/main/docs/privacy.md",
-    "brandColor": "#7C3AED",
-    "logo": "./assets/icon.png",
-    "composerIcon": "./assets/icon.png",
+    "websiteURL": "https://github.com/jestatsio/astra-db-plugin",
+    "supportURL": "https://github.com/jestatsio/astra-db-plugin/issues",
+    "privacyPolicyURL": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md",
+    "brandColor": "#D9531E",
+    "logo": "./assets/icon-v2.png",
+    "composerIcon": "./assets/icon-v2.png",
     "defaultPrompt": [
       "Connect this project to my Astra DB database",
       "Show me what's in my Astra DB database",

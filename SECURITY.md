@@ -2,7 +2,7 @@
 
 ## Reporting a vulnerability
 
-Please report vulnerabilities privately through [GitHub security advisories](https://github.com/erichare/astra-db-plugin/security/advisories/new). Don't open a public issue. Include what you found, how to reproduce it, and what an attacker could do with it. You'll get an acknowledgement within a few days, and a fix or mitigation plan once the report is confirmed.
+Please report vulnerabilities privately through [GitHub security advisories](https://github.com/jestatsio/astra-db-plugin/security/advisories/new). Don't open a public issue. Include what you found, how to reproduce it, and what an attacker could do with it. You'll get an acknowledgement within a few days, and a fix or mitigation plan once the report is confirmed.
 
 In scope:
 

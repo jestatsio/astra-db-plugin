@@ -20,7 +20,7 @@ export interface AstraServerOptions {
 
 export function createAstraServer(options: AstraServerOptions): McpServer {
   const server = new McpServer(
-    { name: SERVER_NAME, title: "Astra DB", version: VERSION, websiteUrl: WEBSITE_URL, icons: ICONS },
+    { name: SERVER_NAME, title: "JEStats Astra DB Plugin", version: VERSION, websiteUrl: WEBSITE_URL, icons: ICONS },
     {
       instructions: instructions({ allowWrites: options.allowWrites, hosted: options.mode === "http" }),
       capabilities: { tools: { listChanged: false }, resources: { listChanged: false }, prompts: { listChanged: false }, completions: {} },

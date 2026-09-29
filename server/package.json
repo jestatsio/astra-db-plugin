@@ -1,7 +1,7 @@
 {
   "name": "@erichare/astra-mcp",
   "version": "2.0.0",
-  "description": "Astra DB for AI agents: an MCP server with data tools, guarded writes, vector search, interactive MCP Apps views, and bundled Data API code examples — plus a one-command installer for Claude Code, Codex, Cursor, VS Code, and more.",
+  "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
   "type": "module",
   "license": "Apache-2.0",
   "engines": {
@@ -22,7 +22,7 @@
     "test:ui": "node tests/ui/harness/run.mjs",
     "test:e2e": "node tests/e2e/smoke.mjs"
   },
-  "mcpName": "io.github.erichare/astra-mcp",
+  "mcpName": "io.github.jestatsio/astra-mcp",
   "bin": {
     "astra-mcp": "dist/cli.js"
   },
@@ -46,14 +46,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/erichare/astra-db-plugin.git",
+    "url": "git+https://github.com/jestatsio/astra-db-plugin.git",
     "directory": "server"
   },
-  "homepage": "https://github.com/erichare/astra-db-plugin#readme",
+  "homepage": "https://github.com/jestatsio/astra-db-plugin#readme",
   "bugs": {
-    "url": "https://github.com/erichare/astra-db-plugin/issues"
+    "url": "https://github.com/jestatsio/astra-db-plugin/issues"
   },
-  "author": "Eric Hare",
+  "author": "JEStats (https://jestats.io)",
   "publishConfig": {
     "access": "public",
     "provenance": true

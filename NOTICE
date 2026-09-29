@@ -1,5 +1,6 @@
 Astra DB Plugin
 Copyright 2026 Eric Hare
+Maintained by JEStats (https://jestats.io).
 
 This distribution bundles agent-skill content (skills/astra-toolkit/) vendored
 from https://github.com/sl-at-ibm/astra-toolkit-skill (Stefano Lottini, IBM /
@@ -30,6 +31,10 @@ This is a community-maintained plugin and is not an official DataStax or IBM
 product.
 
 The plugin's own icon (assets/icon.svg) is original artwork.
+The JEStats icon and banner (assets/icon-v2.svg and assets/banner-v2.svg),
+and their PNG exports, are original artwork adapted from the database glyph.
+They contain no third-party product logos. Earlier assets remain as legacy
+artwork.
 
 The README banner (assets/banner.svg) embeds the IBM Bob mark (IBM, from
 bob.ibm.com), the Claude mark (Anthropic), and the OpenAI symbol (OpenAI),

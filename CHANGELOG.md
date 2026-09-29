@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+- Brand the unofficial Astra DB plugin as **JEStats Astra DB Plugin**, with original artwork and the current jestats.io palette across manifests, documentation, CLI help, interactive views, and hosted consent.
+- Prepare repository links and installer sources for `jestatsio/astra-db-plugin`, retaining the `astra-db` plugin ID, `astra-db-marketplace` marketplace ID, and `@erichare/astra-mcp` npm package.
+- Prepare the MCP Registry identity `io.github.jestatsio/astra-mcp` for the transferred repository's GitHub OIDC publisher.
+- Document existing Astra CLI profile reuse, make token entry optional in the Desktop bundle, and clarify that hosted OAuth still requires an Astra application token.
+- Correct privacy disclosures for HTML export cleanup and optional hosted replay storage; add a full UX assessment and store submission draft.
+- Show the hosted consent warning when Allow writes is selected.
+
 ## 2.0.0 — 2026-09-24
 
 **2.0: one first-party MCP server, one source tree for every agent, and a one-command install.** This is a breaking release; see *Upgrading from 1.x* below.
