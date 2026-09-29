@@ -6,9 +6,9 @@ The proposed JEStats branding release is scoped in [release-plan.md](release-pla
 
 ## Ownership migration
 
-After transfer to `jestatsio/astra-db-plugin`, update the existing npm package's trusted publisher to organization `jestatsio`, repository `astra-db-plugin`, workflow `release.yml`, environment `npm`. Keep the npm name `@erichare/astra-mcp` for compatible updates. GitHub OIDC for the MCP Registry proves the repository owner's namespace: the new release uses `io.github.jestatsio/astra-mcp`, matching `mcpName` in `server/package.json`. The existing `io.github.erichare/astra-mcp@2.0.0` listing is a separate published identity.
+After transfer to `jestatsio/astra-db-plugin`, add a trusted publisher for the existing npm package with organization `jestatsio`, repository `astra-db-plugin`, workflow `release.yml`, environment `npm`. Enable **npm stage publish** and leave **npm publish** disabled: a maintainer approves the staged package with 2FA before it goes live. Existing trusted publisher identity fields are immutable, so create a new connection rather than editing the old `erichare` connection. Keep the npm name `@erichare/astra-mcp` for compatible updates. GitHub OIDC for the MCP Registry proves the repository owner's namespace: the new release uses `io.github.jestatsio/astra-mcp`, matching `mcpName` in `server/package.json`. The existing `io.github.erichare/astra-mcp@2.0.0` listing is a separate published identity.
 
-Before cutting that release, verify the npm trust configuration, Vercel Git integration, environment protection and permissions, and the resulting registry entry. The current release workflow suppresses registry publishing failures; correct that behavior before treating a green workflow as publication proof. [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) · [MCP Registry GitHub Actions publishing](https://modelcontextprotocol.io/registry/github-actions).
+Before cutting that release, verify the npm trust configuration, Vercel Git integration, environment protection and permissions, and the resulting registry entry. The release workflow fails on publishing or readback errors; an existing version is accepted only when its published metadata matches this release. [npm trusted publishing](https://docs.npmjs.com/trusted-publishers/) · [npm staged publishing](https://docs.npmjs.com/staged-publishing/) · [MCP Registry GitHub Actions publishing](https://modelcontextprotocol.io/registry/github-actions).
 
 The new registry icon points to `main/assets/icon-v2.png`. Make that asset reachable before branch-first registry publication, or select an immutable URL from a published commit that already contains it. Verify the actual URL at release time.
 
@@ -29,10 +29,22 @@ Then run **Release** (`.github/workflows/release.yml`) in one of two ways:
 The workflow:
 
 1. runs the whole CI suite
-2. publishes `@erichare/astra-mcp` to npm with provenance, skipping versions that already exist; pre-release versions (`2.1.0-rc.1`) go to the `next` dist-tag, never `latest`
-3. installs the published version with `npx` as a smoke test
-4. attempts to publish `server/server.json` to the MCP Registry (`io.github.jestatsio/astra-mcp`); verify the entry independently until failure reporting is corrected
-5. creates the GitHub Release `vX.Y.Z` with `astra-db-X.Y.Z.mcpb`, a stable `astra-db.mcpb` for `releases/latest/download/`, and `astra-db-bob.zip`
+2. stages `@erichare/astra-mcp` to npm with provenance using a stage-only trusted publisher; pre-release versions (`2.1.0-rc.1`) default to the `next` dist-tag, never `latest`
+3. waits up to 20 minutes for a maintainer to review the staged package on npmjs.com and approve it with 2FA; instructions appear in the run's step summary
+4. verifies the public npm version's package name, version, `mcpName`, repository, and `gitHead` against the release commit, then installs it with `npx` and checks its reported version
+5. publishes `server/server.json` to the MCP Registry (`io.github.jestatsio/astra-mcp`) and reads back that exact version, comparing its identity, repository, branding, package configuration, and remote URLs; the publisher binary is pinned and its checksum is verified
+6. after registry verification succeeds, creates the GitHub Release `vX.Y.Z` with `astra-db-X.Y.Z.mcpb`, a stable `astra-db.mcpb` for `releases/latest/download/`, `astra-db-bob.zip`, and `SHA256SUMS`
+
+To resume after an approval timeout, approve the expected staged package and rerun the failed jobs on the original release commit. A matching public npm version skips staging; a different namespace, repository, or source commit fails. If staging reports `E409`, inspect the existing staged version on npmjs.com before approving and rerunning. CI never treats a conflict as successful publication. OIDC trust tokens cannot run `npm stage list` or `npm stage view`, so staged-package review stays with the maintainer. A matching existing MCP Registry version skips publishing; mismatched metadata or lookup errors fail.
+
+Download all three bundles and `SHA256SUMS` into the same directory, then verify the downloaded files:
+
+```bash
+sha256sum -c SHA256SUMS           # Linux
+shasum -a 256 -c SHA256SUMS       # macOS
+```
+
+For Windows PowerShell, use `Get-FileHash <bundle-file> -Algorithm SHA256` and compare the value with that file's entry in `SHA256SUMS`. Checksums verify downloaded bytes; they do not replace source review or npm provenance.
 
 Merge after it succeeds. Claude Code and Codex users get the new version through their plugin marketplaces.
 
@@ -49,10 +61,10 @@ Merge after it succeeds. Claude Code and Codex users get the new version through
    ```
    `--provenance=false` is needed because provenance can only be signed in CI. Later releases have it.
 3. Re-run the failed jobs of the Release run. The npm step sees the version exists and skips, then the MCP Registry and GitHub Release jobs run.
-4. On npmjs.com, open the package's *Settings → Trusted publishing*, add GitHub Actions with organization `jestatsio`, repository `astra-db-plugin`, workflow `release.yml`, and environment `npm`. Then set publishing access to require 2FA and disallow tokens.
-5. Delete any npm token and the `NPM_TOKEN` secret if you created them. From then on, the job authenticates with OIDC and signs provenance.
+4. On npmjs.com, open the package's *Settings → Trusted publishing*, add GitHub Actions with organization `jestatsio`, repository `astra-db-plugin`, workflow `release.yml`, and environment `npm`. Allow **npm stage publish** and leave **npm publish** disabled. Then set publishing access to require 2FA and disallow tokens.
+5. Delete any npm token and the `NPM_TOKEN` secret if you created them. From then on, the job stages with OIDC and signs provenance; a maintainer approves each new version with 2FA. The workflow pins npm 12.1.0, which supports staged publishing.
 
-Create a GitHub environment named `npm` for the Release job (*Settings → Environments*). Required reviewers are a good idea; if you restrict its deployment branches and tags, allow tags matching `v*`.
+Create a GitHub environment named `npm` for the Release job (*Settings → Environments*). If you restrict its deployment branches and tags, allow the release branch used for branch-first publication as well as tags matching `v*`. Check repository rules before dispatch: a `Restrict updates` rule without a bypass actor prevents the subsequent merge into `main`.
 
 **MCP Registry.** `mcp-publisher login github-oidc` proves ownership of the `io.github.jestatsio/*` namespace from the transferred repository's workflow OIDC token. The registry checks that `server.json`'s `name` matches `mcpName` in `server/package.json`.
 

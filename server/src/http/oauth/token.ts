@@ -2,7 +2,7 @@
 import { json } from "../cors.js";
 import { fingerprint, nowSeconds, open, pkceMatches, seal } from "../crypto.js";
 import {
-  ACCESS_TTL, type AccessToken, type CodeToken, type Grant, type LegacyAccessToken, type LegacyRefreshToken,
+  ACCESS_TTL, type AccessToken, CODE_TTL, type CodeToken, type Grant, type LegacyAccessToken, type LegacyRefreshToken,
   type OAuthDeps, REFRESH_MAX_TTL, REFRESH_TTL, type RefreshToken, SCOPE_READ, oauthError,
 } from "./types.js";
 
@@ -19,13 +19,28 @@ async function issue(grant: Grant, now: number, max: number, deps: OAuthDeps, fa
   });
 }
 
+function missingTokenStore(): Response {
+  return oauthError("temporarily_unavailable", "OAuth token storage is not configured; configure a shared Redis replay store.", 503);
+}
+
+/** Claim only after the code and PKCE verifier have passed every validation. */
+async function consumeAuthorizationCode(raw: string, code: CodeToken, now: number, deps: OAuthDeps): Promise<Response | null> {
+  if (!deps.replay) return missingTokenStore();
+  try {
+    if (await deps.replay.claim(`ac:${await fingerprint(raw)}`, Math.min(CODE_TTL, code.exp - now))) return null;
+    return oauthError("invalid_grant", "Authorization code was already used; restart the connection.");
+  } catch {
+    return oauthError("temporarily_unavailable", "The token store is unavailable; try again shortly.", 503);
+  }
+}
+
 /**
- * With a replay store, each refresh token works once. Presenting a used one means
+ * Each refresh token works once. Presenting a used one means
  * it was copied, so the whole rotation chain is revoked and the user reconnects.
  * Returns an error response, or null to proceed.
  */
 async function consumeRefreshToken(raw: string, token: RefreshToken | LegacyRefreshToken, now: number, deps: OAuthDeps): Promise<Response | null> {
-  if (!deps.replay) return null;
+  if (!deps.replay) return missingTokenStore();
   const fam = "fam" in token ? token.fam : undefined;
   const chainTtl = ("max" in token ? token.max : token.exp) - now;
   try {
@@ -55,10 +70,13 @@ export async function handleToken(req: Request, deps: OAuthDeps): Promise<Respon
     const code = p.code ? await open<CodeToken>(p.code, deps.secrets) : null;
     if (code?.t !== "code" || !code.grant) return oauthError("invalid_grant", "Unknown or malformed authorization code.");
     if (code.exp <= now) return oauthError("invalid_grant", "Authorization code expired.");
+    if (!Number.isFinite(code.exp) || code.exp > now + CODE_TTL) return oauthError("invalid_grant", "Authorization code has an invalid lifetime.");
     if (p.client_id && p.client_id !== code.grant.client_id) return oauthError("invalid_grant", "client_id mismatch.");
     if (p.redirect_uri && p.redirect_uri !== code.redirect_uri) return oauthError("invalid_grant", "redirect_uri mismatch.");
     if (p.resource && p.resource !== code.grant.aud) return oauthError("invalid_target", "resource mismatch.");
     if (!p.code_verifier || !(await pkceMatches(p.code_verifier, code.code_challenge))) return oauthError("invalid_grant", "PKCE verification failed.");
+    const replayed = await consumeAuthorizationCode(p.code, code, now, deps);
+    if (replayed) return replayed;
     return issue(code.grant, now, now + REFRESH_MAX_TTL, deps);
   }
 

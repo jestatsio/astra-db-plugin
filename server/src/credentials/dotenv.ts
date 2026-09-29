@@ -40,7 +40,8 @@ export function mergeDotenv(existing: string, updates: Record<string, string | u
   const out: string[] = [];
   for (const line of lines) {
     const match = line.match(LINE);
-    if (match && pending.has(match[1])) {
+    if (match && Object.hasOwn(updates, match[1])) {
+      if (!pending.has(match[1])) continue; // remove duplicate assignments, including obsolete secrets
       const value = pending.get(match[1]);
       pending.delete(match[1]);
       if (value !== undefined) out.push(`${match[1]}=${quoteIfNeeded(value)}`);

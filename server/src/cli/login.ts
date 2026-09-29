@@ -9,7 +9,7 @@ import { join, relative, resolve } from "node:path";
 import type { AstraGateway, DatabaseInfoLike } from "../astra/gateway.js";
 import { toAstraMcpError } from "../astra/errors.js";
 import { mergeDotenv } from "../credentials/dotenv.js";
-import { CredentialResolver, userCredentialsPath } from "../credentials/resolver.js";
+import { type AstraEnvironment, type CliProfileRef, CredentialResolver, astraEnvironment, userCredentialsPath } from "../credentials/resolver.js";
 import { clean, looksLikeAstraToken, maskToken } from "../credentials/sanitize.js";
 import { gitIgnoreStatus, readText, writeFileEnsured } from "./fsutil.js";
 import type { IO } from "./term.js";
@@ -21,6 +21,9 @@ export interface LoginOptions {
   database?: string;
   keyspace?: string;
   endpoint?: string;
+  profile?: string;
+  astrarc?: string;
+  astraEnv?: string;
   env?: NodeJS.ProcessEnv;
   home?: string;
   readStdin?: () => Promise<string>;
@@ -41,20 +44,35 @@ async function readAllStdin(): Promise<string> {
   return Buffer.concat(chunks).toString("utf8");
 }
 
-async function obtainToken(io: IO, options: LoginOptions): Promise<string> {
+interface TokenChoice {
+  token: string;
+  astraEnv: AstraEnvironment;
+  cliProfile?: CliProfileRef;
+}
+
+async function obtainToken(io: IO, options: LoginOptions): Promise<TokenChoice> {
+  const explicitCli = clean(options.profile) !== undefined || clean(options.astrarc) !== undefined;
+  const manualEnvironment = () => astraEnvironment(options.astraEnv ?? (options.env ?? process.env).ASTRA_ENV);
   if (options.tokenStdin) {
+    if (explicitCli) throw new Error("Choose either --token-stdin or an Astra CLI profile (--profile/--astrarc).");
     const token = (await (options.readStdin ?? readAllStdin)()).trim();
     if (!looksLikeAstraToken(token)) throw new Error("stdin did not contain an Astra application token (AstraCS:…).");
-    return token;
+    return { token, astraEnv: manualEnvironment() };
   }
-  const existing = new CredentialResolver({ env: options.env, cwd: options.dir, home: options.home }).resolve().token;
+  const creds = new CredentialResolver({ env: options.env, cwd: options.dir, home: options.home, profile: options.profile, astrarc: options.astrarc }).resolve();
+  const existing = creds.token;
   if (existing && looksLikeAstraToken(existing.value)) {
-    const reuse = await io.confirm(`Use the token from ${existing.detail} (${maskToken(existing.value)})?`, true);
-    if (reuse) return existing.value;
+    const reuse = explicitCli || await io.confirm(`Use the token from ${existing.detail} (${maskToken(existing.value)})?`, true);
+    if (reuse) {
+      if (creds.cliProfile && options.astraEnv !== undefined) throw new Error("Set ASTRA_ENV in the selected Astra CLI profile; --astra-env is for manually entered tokens.");
+      return { token: existing.value, astraEnv: creds.cliProfile ? creds.astraEnv : options.astraEnv ? astraEnvironment(options.astraEnv) : creds.astraEnv, cliProfile: creds.cliProfile };
+    }
   }
+  if (explicitCli) throw new Error("The selected Astra CLI profile does not contain a valid Astra application token (AstraCS:…).");
   io.info(TOKEN_HINT);
-  return io.password("Astra application token (input hidden)", (value) =>
+  const token = await io.password("Astra application token (input hidden)", (value) =>
     looksLikeAstraToken(value.trim()) ? undefined : "Expected a token starting with AstraCS:");
+  return { token: token.trim(), astraEnv: manualEnvironment() };
 }
 
 async function chooseDatabase(io: IO, databases: DatabaseInfoLike[], wanted?: string): Promise<DatabaseInfoLike> {
@@ -81,13 +99,13 @@ export async function login(io: IO, gateway: AstraGateway, options: LoginOptions
   const home = options.home ?? homedir();
   const env = options.env ?? process.env;
   io.intro("Connect Astra DB");
-  const token = await obtainToken(io, options);
+  const { token, astraEnv, cliProfile } = await obtainToken(io, { ...options, dir, home, env });
 
   let endpoint = clean(options.endpoint);
   let database: DatabaseInfoLike | undefined;
   if (!endpoint) {
     try {
-      const databases = await io.spin("Listing your databases", () => gateway.devops(token, "prod").listDatabases({ include: "ACTIVE" }));
+      const databases = await io.spin("Listing your databases", () => gateway.devops(token, astraEnv).listDatabases({ include: "ACTIVE" }));
       database = await chooseDatabase(io, databases, options.database);
       endpoint = database.regions[0].apiEndpoint;
     } catch (err) {
@@ -119,11 +137,23 @@ export async function login(io: IO, gateway: AstraGateway, options: LoginOptions
     }
   });
 
-  const values = { ASTRA_DB_APPLICATION_TOKEN: token, ASTRA_DB_API_ENDPOINT: endpointUrl, ASTRA_DB_KEYSPACE: keyspace };
+  const values = {
+    ASTRA_DB_APPLICATION_TOKEN: cliProfile ? undefined : token,
+    ASTRA_DB_TOKEN: undefined,
+    APPLICATION_TOKEN: undefined,
+    ASTRA_DB_API_ENDPOINT: endpointUrl,
+    ASTRA_DB_KEYSPACE: keyspace,
+    ASTRA_PROFILE: cliProfile?.name,
+    ASTRARC: cliProfile?.path,
+    ASTRA_ENV: cliProfile ? undefined : astraEnv,
+  };
   let written: string;
   if (options.global) {
     written = userCredentialsPath(env, home, process.platform);
-    writeFileEnsured(written, `${JSON.stringify({ token, endpoint: endpointUrl, keyspace, ...(database ? { database: database.name } : {}) }, null, 2)}\n`, 0o600);
+    writeFileEnsured(written, `${JSON.stringify({
+      ...(cliProfile ? { profile: cliProfile.name, astrarc: cliProfile.path } : { token, astraEnv }),
+      endpoint: endpointUrl, keyspace, ...(database ? { database: database.name } : {}),
+    }, null, 2)}\n`, 0o600);
   } else {
     written = join(dir, ".env");
     writeFileEnsured(written, mergeDotenv(readText(written) ?? "", values), 0o600);
@@ -146,11 +176,23 @@ export async function login(io: IO, gateway: AstraGateway, options: LoginOptions
     }
   }
 
+  if (cliProfile) {
+    try {
+      const active = new CredentialResolver({ env, cwd: dir, home }).resolve();
+      if (active.cliProfile?.name !== cliProfile.name || active.cliProfile.path !== cliProfile.path) {
+        io.warn(`Saved CLI profile settings are overridden by ${active.token?.detail ?? "other credential settings"} in this project. Clear the higher-priority setting to use the saved profile.`);
+      }
+    } catch (err) {
+      io.warn(`Saved CLI profile settings are overridden by other credential settings: ${toAstraMcpError(err).message}`);
+    }
+  }
+
   const where = options.global ? written : relative(process.cwd(), written) || ".env";
   io.note([
     `database  ${database ? `${database.name} (${database.regions[0]?.name})` : new URL(endpointUrl).hostname}`,
     `keyspace  ${keyspace}  ·  ${collections.length} collection(s)`,
-    `token     ${maskToken(token)}`,
+    cliProfile ? `profile   ${cliProfile.name} in ${cliProfile.path} (token stays in Astra CLI config)` : `token     ${maskToken(token)}`,
+    `Astra env ${astraEnv}`,
     `saved to  ${where}`,
   ].join("\n"), "Connected");
   io.outro(options.global

@@ -12,6 +12,7 @@ import { editJsonc } from "../src/cli/fsutil.js";
 import { init, uninstall } from "../src/cli/init.js";
 import { login } from "../src/cli/login.js";
 import { scriptedIO } from "../src/cli/term.js";
+import { CredentialResolver } from "../src/credentials/resolver.js";
 import { createFakeState, fakeGateway } from "./fake.js";
 import { TOKEN } from "./helpers.js";
 
@@ -196,6 +197,73 @@ describe("login", () => {
     const io = scriptedIO(["https://db-us-east-2.apps.astra.datastax.com", false]);
     const result = await login(io, fakeGateway(state), { dir: cwd, home, env: {}, tokenStdin: true, readStdin: async () => TOKEN });
     expect(result.endpoint).toBe("https://db-us-east-2.apps.astra.datastax.com");
+  });
+
+  it("saves named CLI profile metadata without copying the token and uses its environment", async () => {
+    const { cwd, home } = sandbox();
+    const config = join(home, "work.astrarc");
+    writeFileSync(config, `[work]\nASTRA_DB_APPLICATION_TOKEN=${TOKEN}\nASTRA_ENV=dev\n`);
+    writeFileSync(join(cwd, ".env"), "# keep\nCUSTOM_SETTING=yes\nASTRA_DB_TOKEN=AstraCS:old-project-token\n");
+    const gateway = fakeGateway(createFakeState());
+    const devops = gateway.devops;
+    const environments: string[] = [];
+    gateway.devops = (token, environment) => {
+      environments.push(environment ?? "prod");
+      return devops(token, environment);
+    };
+    const io = scriptedIO([]);
+    await login(io, gateway, { dir: cwd, home, env: {}, profile: "work", astrarc: config });
+    const saved = readFileSync(join(cwd, ".env"), "utf8");
+    expect(saved).toContain("ASTRA_PROFILE=work");
+    expect(saved).toContain(`ASTRARC=${config}`);
+    expect(saved).toContain("CUSTOM_SETTING=yes");
+    expect(saved).not.toContain("AstraCS:");
+    expect(environments).toEqual(["dev"]);
+    expect(io.lines.join("\n")).not.toContain(TOKEN);
+    expect(new CredentialResolver({ env: {}, cwd, home }).resolve().token).toMatchObject({ source: "astra-cli", value: TOKEN });
+  });
+
+  it("reuses a detected CLI profile in global login without writing a duplicate secret", async () => {
+    const { cwd, home } = sandbox();
+    writeFileSync(join(home, ".astrarc"), `[default]\nASTRA_DB_TOKEN=${TOKEN}\n`);
+    const userFile = join(home, "credentials.json");
+    const env = { ASTRA_MCP_CREDENTIALS_FILE: userFile };
+    await login(scriptedIO([true]), fakeGateway(createFakeState()), { dir: cwd, home, env, global: true });
+    expect(json(userFile)).toMatchObject({ profile: "default", astrarc: join(home, ".astrarc") });
+    expect(json(userFile).token).toBeUndefined();
+    expect(readFileSync(userFile, "utf8")).not.toContain(TOKEN);
+    expect(new CredentialResolver({ env, cwd, home }).resolve().token?.value).toBe(TOKEN);
+  });
+
+  it("rejects missing named CLI profiles before writing connection settings", async () => {
+    const { cwd, home } = sandbox();
+    writeFileSync(join(home, ".astrarc"), `[default]\nASTRA_DB_TOKEN=${TOKEN}\n`);
+    await expect(login(scriptedIO([]), fakeGateway(createFakeState()), { dir: cwd, home, env: {}, profile: "missing" })).rejects.toThrow(/profile 'missing'/);
+    expect(existsSync(join(cwd, ".env"))).toBe(false);
+  });
+
+  it("uses and persists the explicit environment for a stdin token", async () => {
+    const { cwd, home } = sandbox();
+    const gateway = fakeGateway(createFakeState());
+    const devops = gateway.devops;
+    const environments: string[] = [];
+    gateway.devops = (token, environment) => {
+      environments.push(environment ?? "prod");
+      return devops(token, environment);
+    };
+    await login(scriptedIO([]), gateway, { dir: cwd, home, env: {}, tokenStdin: true, readStdin: async () => TOKEN, astraEnv: "test" });
+    expect(environments).toEqual(["test"]);
+    expect(new CredentialResolver({ env: {}, cwd, home }).resolve().astraEnv).toBe("test");
+  });
+
+  it("explains when a higher-priority shell token overrides the saved profile selection", async () => {
+    const { cwd, home } = sandbox();
+    writeFileSync(join(home, ".astrarc"), `[work]\nASTRA_DB_TOKEN=${TOKEN}\n`);
+    const io = scriptedIO([]);
+    const env = { ASTRA_DB_TOKEN: "AstraCS:shell-token" };
+    await login(io, fakeGateway(createFakeState()), { dir: cwd, home, env, profile: "work" });
+    expect(io.lines.some((line) => line.startsWith("warn:") && line.includes("overridden") && line.includes("ASTRA_DB_TOKEN"))).toBe(true);
+    expect(new CredentialResolver({ env, cwd, home }).resolve().token?.value).toBe(env.ASTRA_DB_TOKEN);
   });
 });
 

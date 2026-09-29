@@ -107,8 +107,17 @@ describe("hosted MCP endpoint", () => {
 
 describe("OAuth authorization server", () => {
   const verified: unknown[] = [];
+  const replayKeys = new Set<string>();
   const deps: OAuthDeps = {
     secrets: SECRETS,
+    replay: {
+      claim: async (key) => {
+        if (replayKeys.has(key)) return false;
+        replayKeys.add(key);
+        return true;
+      },
+      has: async (key) => replayKeys.has(key),
+    },
     verify: async (creds) => {
       verified.push(creds);
       return creds.token === TOKEN ? null : "Astra rejected the token.";
@@ -244,6 +253,28 @@ describe("OAuth authorization server", () => {
 });
 
 describe("crypto", () => {
+  it("accepts canonical aw1/aw2 tokens and refuses encoding aliases", async () => {
+    const payload = { a: 1 };
+    const key = await crypto.subtle.importKey("raw", await crypto.subtle.digest("SHA-256", new TextEncoder().encode(SECRETS.current)), "AES-GCM", false, ["encrypt"]);
+    const iv = new Uint8Array(12).fill(255);
+    const cipher = new Uint8Array(await crypto.subtle.encrypt({ name: "AES-GCM", iv }, key, new TextEncoder().encode(JSON.stringify(payload))));
+    const legacy = `aw1.${Buffer.from(iv).toString("base64url")}.${Buffer.from(cipher).toString("base64url")}`;
+    const current = await seal(payload, SECRETS);
+    for (const token of [legacy, current]) {
+      expect(await open(token, SECRETS)).toEqual(payload);
+      for (const suffix of ["=", "==", " ", "!"]) expect(await open(`${token}${suffix}`, SECRETS)).toBeNull();
+      const parts = token.split(".");
+      parts[1] += "=";
+      expect(await open(parts.join("."), SECRETS)).toBeNull();
+      // Ciphertext's last base64url symbol has two unused bits; aliases decode to the same bytes.
+      const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_";
+      const finalIndex = alphabet.indexOf(token.at(-1)!);
+      expect(finalIndex % 4).toBe(0);
+      expect(await open(`${token.slice(0, -1)}${alphabet[finalIndex + 1]}`, SECRETS)).toBeNull();
+    }
+    expect(await open(legacy.replaceAll("_", "/"), SECRETS)).toBeNull();
+  });
+
   it("seals, opens, rotates secrets, and rejects tampering", async () => {
     const sealed = await seal({ a: 1 }, SECRETS);
     expect(await open(sealed, SECRETS)).toEqual({ a: 1 });

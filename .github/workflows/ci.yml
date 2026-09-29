@@ -65,7 +65,7 @@ jobs:
           node -e '
             const [p] = require(process.argv[1]);
             const files = p.files.map((f) => f.path).sort();
-            const want = ["LICENSE", "THIRD_PARTY_NOTICES.md", "dist/assets.json", "dist/cli.js", "package.json"];
+            const want = ["LICENSE", "NOTICE", "THIRD_PARTY_NOTICES.md", "dist/assets.json", "dist/cli.js", "package.json"];
             for (const f of want) if (!files.includes(f)) throw new Error(`missing ${f} in package: ${files}`);
             if (p.unpackedSize > 8 * 1024 * 1024) throw new Error(`package too large: ${p.unpackedSize}`);
             console.log(`${files.length} files, ${(p.size / 1024).toFixed(0)} KB packed`);

@@ -1,6 +1,6 @@
 {
   "name": "@erichare/astra-mcp",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
   "type": "module",
   "license": "Apache-2.0",
@@ -30,6 +30,7 @@
     "dist/cli.js",
     "dist/assets.json",
     "THIRD_PARTY_NOTICES.md",
+    "NOTICE",
     "README.md",
     "LICENSE"
   ],

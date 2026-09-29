@@ -5,7 +5,7 @@
   },
   "metadata": {
     "description": "Unofficial Astra DB integration by JEStats — skills, hooks, and the @erichare/astra-mcp server.",
-    "version": "2.0.0"
+    "version": "2.1.0"
   },
   "plugins": [
     {

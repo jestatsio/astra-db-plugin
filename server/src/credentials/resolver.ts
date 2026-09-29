@@ -5,7 +5,7 @@
  *   2. project dotenv           .env.local / .env, nearest directory first, up to the git root
  *   3. host plugin config       ASTRA_MCP_CONFIG_* (Claude Code userConfig, MCPB user_config)
  *   4. user credentials file    written by `astra-mcp login --global`
- *   5. Astra CLI profile        ~/.astrarc (token only)
+ *   5. Astra CLI profile        ~/.astrarc (token and its Astra environment)
  *
  * Token, endpoint, and keyspace resolve independently and each records where
  * it came from. Files are re-read only when they change, so a `login` in
@@ -14,7 +14,8 @@
 import { existsSync, readFileSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { dirname, join, posix, resolve, win32 } from "node:path";
-import { astrarcCandidates, profileFrom } from "./astrarc.js";
+import { AstraMcpError } from "../astra/errors.js";
+import { astrarcCandidates, parseAstrarc, profileFrom } from "./astrarc.js";
 import { parseDotenv } from "./dotenv.js";
 import { clean, parseBool } from "./sanitize.js";
 
@@ -28,6 +29,18 @@ export interface Sourced<T> {
 }
 
 export type Environment = "astra" | "hcd" | "dse" | "cassandra" | "other";
+export type AstraEnvironment = "prod" | "dev" | "test";
+
+export function astraEnvironment(value?: string): AstraEnvironment {
+  const name = clean(value)?.toLowerCase() ?? "prod";
+  if (name === "prod" || name === "dev" || name === "test") return name;
+  throw new AstraMcpError("not_configured", "Astra environment must be prod, dev, or test.", { hint: "Check ASTRA_ENV or pass --astra-env prod, dev, or test to login." });
+}
+
+export interface CliProfileRef {
+  name: string;
+  path: string;
+}
 
 export interface ResolvedCredentials {
   token?: Sourced<string>;
@@ -37,8 +50,10 @@ export interface ResolvedCredentials {
   database?: Sourced<string>;
   /** Data API environment; anything other than "astra" disables DevOps lookups. */
   environment: Environment;
-  /** Astra control-plane environment from the CLI profile (prod | dev | test). */
-  astraEnv: "prod" | "dev" | "test";
+  /** Astra control-plane environment paired with the selected credential. */
+  astraEnv: AstraEnvironment;
+  /** Present only when the selected token is read directly from this CLI profile. */
+  cliProfile?: CliProfileRef;
   readOnly: boolean;
   /** Files that were consulted, for `doctor` and `connection_status`. */
   consulted: string[];
@@ -70,6 +85,9 @@ export interface ResolverOptions {
   cwd?: string;
   home?: string;
   platform?: NodeJS.Platform;
+  /** An explicit CLI selection for login; bypasses other token sources. */
+  profile?: string;
+  astrarc?: string;
 }
 
 export function userCredentialsPath(env: NodeJS.ProcessEnv, home: string, platform: NodeJS.Platform): string {
@@ -109,6 +127,8 @@ export class CredentialResolver implements CredentialProvider {
   private readonly cwd: string;
   private readonly home: string;
   private readonly platform: NodeJS.Platform;
+  private readonly profile?: string;
+  private readonly astrarc?: string;
   private readonly cache = new Map<string, CachedFile<unknown>>();
 
   constructor(options: ResolverOptions = {}) {
@@ -116,6 +136,8 @@ export class CredentialResolver implements CredentialProvider {
     this.cwd = options.cwd ?? process.cwd();
     this.home = options.home ?? homedir();
     this.platform = options.platform ?? process.platform;
+    this.profile = clean(options.profile);
+    this.astrarc = clean(options.astrarc);
   }
 
   /** Read and parse a file, re-parsing only when mtime/size change. Missing/unreadable → undefined. */
@@ -147,15 +169,30 @@ export class CredentialResolver implements CredentialProvider {
   resolve(): ResolvedCredentials {
     const found: Partial<Record<Field, Sourced<string>>> = {};
     const consulted: string[] = [];
-    const take = (field: Field, value: string | undefined, source: SourceId, detail: string) => {
+    const selection: { profile?: Sourced<string>; astrarc?: Sourced<string> } = {};
+    let astraEnv: AstraEnvironment = "prod";
+    let cliProfile: CliProfileRef | undefined;
+    const forceCli = this.profile !== undefined || this.astrarc !== undefined;
+    const take = (field: Field, value: string | undefined, source: SourceId, detail: string, environment?: string) => {
+      if (field === "token" && source !== "astra-cli" && (forceCli || selection.profile || selection.astrarc)) return;
       const v = clean(value);
-      if (v !== undefined && !found[field]) found[field] = { value: v, source, detail };
+      if (v !== undefined && !found[field]) {
+        found[field] = { value: v, source, detail };
+        if (field === "token") astraEnv = astraEnvironment(environment);
+      }
+    };
+    const select = (profile: string | undefined, astrarc: string | undefined, source: SourceId, detail: string) => {
+      for (const [key, value] of [["profile", profile], ["astrarc", astrarc]] as const) {
+        const v = clean(value);
+        if (v && !selection[key]) selection[key] = { value: v, source, detail };
+      }
     };
 
     // 1. shell environment
     for (const field of FIELDS) {
-      for (const name of ALIASES[field]) take(field, this.env[name], "env", name);
+      for (const name of ALIASES[field]) take(field, this.env[name], "env", name, this.env.ASTRA_ENV);
     }
+    select(this.env.ASTRA_PROFILE, this.env.ASTRARC, "env", "process environment");
 
     // 2. project dotenv files, nearest first; .env.local beats .env in the same directory
     for (const dir of dotenvDirectories(this.projectDir(), this.home)) {
@@ -165,41 +202,59 @@ export class CredentialResolver implements CredentialProvider {
         if (!vars) continue;
         consulted.push(path);
         for (const field of FIELDS) {
-          for (const key of ALIASES[field]) take(field, vars[key], "dotenv", path);
+          for (const key of ALIASES[field]) take(field, vars[key], "dotenv", path, vars.ASTRA_ENV);
         }
+        select(vars.ASTRA_PROFILE, vars.ASTRARC, "dotenv", path);
       }
     }
 
     // 3. host plugin config (Claude Code userConfig / MCPB user_config), passed as env
-    for (const field of FIELDS) take(field, this.env[PLUGIN_CONFIG[field]], "plugin-config", "plugin settings");
+    for (const field of FIELDS) take(field, this.env[PLUGIN_CONFIG[field]], "plugin-config", "plugin settings", this.env.ASTRA_MCP_CONFIG_ASTRA_ENV);
 
     // 4. user credentials file from `astra-mcp login --global`
     const userFile = userCredentialsPath(this.env, this.home, this.platform);
-    const stored = this.readCached(userFile, (text) => JSON.parse(text) as Partial<Record<Field, string>>);
+    const stored = this.readCached(userFile, (text) => JSON.parse(text) as Partial<Record<Field | "profile" | "astrarc" | "astraEnv", string>>);
     if (stored) {
       consulted.push(userFile);
-      for (const field of FIELDS) take(field, stored[field], "user-file", userFile);
+      for (const field of FIELDS) take(field, stored[field], "user-file", userFile, stored.astraEnv);
+      select(stored.profile, stored.astrarc, "user-file", userFile);
     }
 
-    // 5. Astra CLI profile (token only)
-    let astraEnv: ResolvedCredentials["astraEnv"] = "prod";
-    const profile = clean(this.env.ASTRA_PROFILE) ?? "default";
-    for (const path of astrarcCandidates(this.env, this.home)) {
-      const entry = this.readCached(path, (text) => profileFrom(text, profile));
-      if (entry === undefined) continue;
-      consulted.push(path);
-      take("token", entry?.token, "astra-cli", `${path} [${profile}]`);
-      if (entry?.environment && ["prod", "dev", "test"].includes(entry.environment.toLowerCase())) {
-        astraEnv = entry.environment.toLowerCase() as ResolvedCredentials["astraEnv"];
+    // 5. Astra CLI profile. Ignore unrelated profiles when another token source won.
+    if (!found.token) {
+      const profile = this.profile ?? selection.profile?.value ?? "default";
+      const selectedConfig = this.astrarc ?? selection.astrarc?.value;
+      const configBase = !this.astrarc && selection.astrarc && ["dotenv", "user-file"].includes(selection.astrarc.source)
+        ? dirname(selection.astrarc.detail) : this.cwd;
+      const explicit = forceCli || selection.profile !== undefined || selectedConfig !== undefined;
+      const paths = astrarcCandidates({ ...this.env, ASTRARC: selectedConfig ? resolve(configBase, selectedConfig) : undefined }, this.home);
+      let matchedFile: string | undefined;
+      for (const path of paths) {
+        const profiles = this.readCached(path, parseAstrarc);
+        if (profiles === undefined) continue;
+        consulted.push(path);
+        matchedFile = path;
+        const entry = profileFrom(profiles, profile);
+        if (entry?.token) {
+          take("token", entry.token, "astra-cli", `${path} [${profile}]`, entry.environment);
+          if (found.token) cliProfile = { name: profile, path: resolve(path) };
+        }
+        break;
       }
-      break;
+      if (explicit && !found.token) {
+        throw new AstraMcpError("not_configured", matchedFile
+          ? `Astra CLI profile '${profile}' in ${matchedFile} is missing or has no application token.`
+          : `Astra CLI config could not be read: ${paths.join(", ")}.`, {
+          hint: "Check ASTRA_PROFILE/ASTRARC and configure the selected profile with Astra CLI. Use login --token-stdin to replace saved profile settings with a token.",
+        });
+      }
     }
 
     const envName = clean(this.env.ASTRA_DB_ENVIRONMENT)?.toLowerCase();
     const environment: Environment = ["hcd", "dse", "cassandra", "other"].includes(envName ?? "") ? (envName as Environment) : "astra";
     const readOnly = parseBool(this.env.ASTRA_MCP_READ_ONLY) ?? parseBool(this.env.ASTRA_MCP_CONFIG_READ_ONLY) ?? false;
 
-    return { ...found, environment, astraEnv, readOnly, consulted };
+    return { ...found, environment, astraEnv, cliProfile, readOnly, consulted };
   }
 }
 

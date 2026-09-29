@@ -86,7 +86,7 @@ Four screenshot candidates are prepared from synthetic AppBridge fixtures at 1,5
 | [Similarity results](../assets/widgets/v2/similarity-light.png) | “Find articles similar to my query.” |
 
 1. **Identity:** transferred source URL, public publisher identity, distinct original icon, unofficial notice, support/privacy/security links, resolved rights for bundled content.
-2. **Artifacts:** one exact version/source commit; package and ZIP contents; checksums; successful release job outputs; npm metadata/provenance; MCP Registry readback. [release.yml](../.github/workflows/release.yml) must stop masking registry failures.
+2. **Artifacts:** one exact version/source commit; package and ZIP contents; checksums; successful release job outputs; npm metadata/provenance; MCP Registry readback. 2.1 preparation adds strict registry readback and SHA256SUMS; verify final workflow outputs.
 3. **Usability:** host/OS/version records for setup, credential reuse, schema inspection, search, read-only mode, confirmations, reinstall, and uninstall. State which hosts provide embedded views and which use HTML export.
 4. **Hosted operations:** working public endpoint and authorization metadata, single-use codes, verified refresh replay protection, expiry/revocation tests, deployment ownership, reviewer sample account, and truthful privacy retention.
 5. **Submission:** requested platform-specific tests/demo, validation and scan results, submission reference, review response, and live listing URL. Record those as separate outcomes.
@@ -98,7 +98,7 @@ Four screenshot candidates are prepared from synthetic AppBridge fixtures at 1,5
 | Existing npm/GitHub release | 2.0.0 verified public on 2026-09-29; branded 2.1.0 remains proposed. |
 | Existing MCP Registry | `io.github.erichare/astra-mcp` 2.0.0 verified active; new owner namespace not yet published. |
 | Repository transfer | Complete: public `jestatsio/astra-db-plugin` verified 2026-09-29; existing release/PR preserved. |
-| New branded assets and listing materials | Working draft; final review/build verification required. |
+| New branded assets and listing materials | Branding merged in PR #4; 2.1 auth/release validation in progress. |
 | Upstream toolkit redistribution/license confirmation | Outstanding, as recorded in [NOTICE](../NOTICE). |
-| Hosted store readiness | Source/metadata assessment only; authentication fixes and operational verification outstanding. |
+| Hosted store readiness | Authentication fixes implemented for 2.1; live deployment/storage and reviewer-account verification outstanding. |
 | New official store submission / approval / live listing | Not established by this assessment; record evidence for each platform when completed. |

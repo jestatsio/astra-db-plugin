@@ -29,7 +29,7 @@ Usage
 Commands
   init        Configure your agents (Claude Code, Codex, Cursor, VS Code, Windsurf,
               Claude Desktop, Gemini CLI, IBM Bob), then connect a database
-  login       Connect a database: writes ASTRA_DB_* to ./.env (or your profile with --global)
+  login       Connect a database; reuse an Astra CLI profile or enter a token
   doctor      Check credentials, connectivity, .env hygiene, and agent setup
   uninstall   Remove what init configured (keeps .env and credentials)
   serve       Run the MCP server over stdio (the default when piped)
@@ -46,6 +46,9 @@ Options
   --database NAME   login: pick this database (name or id)
   --keyspace NAME   login: use this keyspace
   --endpoint URL    login: use this Data API endpoint (database-scoped tokens)
+  --profile NAME    login/init: reuse this Astra CLI profile without copying its token
+  --astrarc PATH    login/init: use this Astra CLI config file
+  --astra-env ENV   login/init: prod, dev, or test for a manually entered token
   --read-only       serve: hide write tools
   --json            doctor: machine-readable output
   --version, -v     print the version
@@ -68,6 +71,9 @@ function parse(argv: string[]) {
       database: { type: "string" },
       keyspace: { type: "string" },
       endpoint: { type: "string" },
+      profile: { type: "string" },
+      astrarc: { type: "string" },
+      "astra-env": { type: "string" },
       dir: { type: "string" },
       "read-only": { type: "boolean" },
       json: { type: "boolean" },
@@ -109,6 +115,16 @@ export async function main(argv: string[]): Promise<number> {
   const io = terminalIO({ yes: Boolean(values.yes) });
   const gateway = createGateway(VERSION, { devopsUrl: process.env.ASTRA_MCP_DEVOPS_URL });
   const env = defaultEnv();
+  const connectionOptions = {
+    dir: values.dir as string | undefined,
+    tokenStdin: Boolean(values["token-stdin"]),
+    database: values.database as string | undefined,
+    keyspace: values.keyspace as string | undefined,
+    endpoint: values.endpoint as string | undefined,
+    profile: values.profile as string | undefined,
+    astrarc: values.astrarc as string | undefined,
+    astraEnv: values["astra-env"] as string | undefined,
+  };
   try {
     switch (command) {
       case "serve":
@@ -118,7 +134,7 @@ export async function main(argv: string[]): Promise<number> {
         const result = await init(io, env, { agents: agentList(values.agents), project: Boolean(values.project), dryRun: Boolean(values["dry-run"]) });
         if (!values["dry-run"] && !values["no-login"] && result.agents.length && io.interactive) {
           if (await io.confirm("Connect a database now?", true)) {
-            await login(io, gateway, { global: result.agents.includes("claude-desktop") && !values.project ? await io.confirm("Save for all projects (user profile) instead of this project's .env?", false) : false });
+            await login(io, gateway, { ...connectionOptions, global: result.agents.includes("claude-desktop") && !values.project ? await io.confirm("Save for all projects (user profile) instead of this project's .env?", false) : false });
           } else {
             io.outro("Later: npx -y @erichare/astra-mcp login");
           }
@@ -129,12 +145,8 @@ export async function main(argv: string[]): Promise<number> {
       }
       case "login":
         await login(io, gateway, {
-          dir: values.dir as string | undefined,
+          ...connectionOptions,
           global: Boolean(values.global),
-          tokenStdin: Boolean(values["token-stdin"]),
-          database: values.database as string | undefined,
-          keyspace: values.keyspace as string | undefined,
-          endpoint: values.endpoint as string | undefined,
         });
         return 0;
       case "doctor": {

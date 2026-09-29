@@ -34,7 +34,7 @@ npx -y @erichare/astra-mcp init --no-login
 npx -y @erichare/astra-mcp doctor
 ```
 
-Use `ASTRA_PROFILE` for a named CLI profile. If the token can access multiple databases, set `ASTRA_DB_NAME` or `ASTRA_DB_API_ENDPOINT` in your environment. This route keeps the token in the CLI profile; the regular `login` flow currently copies an existing token into the project's `.env`. See [configuration](docs/configuration.md) for credential precedence.
+To select and verify a database from a named profile, run `npx -y @erichare/astra-mcp login --profile analytics` (add `--astrarc /path/to/.astrarc` for a custom CLI configuration). Setup saves the profile selector and connection details; the token stays in your CLI profile, and rotation takes effect on the next call. Astra still requires an application token upstream. See [configuration](docs/configuration.md) for credential precedence.
 
 **Connecting without an existing profile?** Run the regular `init` flow above, or `npx -y @erichare/astra-mcp login`:
 

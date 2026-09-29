@@ -21,6 +21,11 @@ function fromB64url(text: string): Uint8Array<ArrayBuffer> {
   return new Uint8Array(buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength));
 }
 
+/** One textual encoding per byte sequence, so aliases cannot bypass replay fingerprints. */
+function isCanonicalB64url(value: string): boolean {
+  return /^[A-Za-z0-9_-]+$/.test(value) && Buffer.from(value, "base64url").toString("base64url") === value;
+}
+
 async function sha256(data: Uint8Array | string): Promise<Uint8Array> {
   return new Uint8Array(await crypto.subtle.digest("SHA-256", typeof data === "string" ? enc.encode(data) : new Uint8Array(data)));
 }
@@ -71,7 +76,9 @@ export async function seal(payload: unknown, secrets: Secrets): Promise<string> 
 
 /** The payload, or null for anything malformed, tampered, or sealed with an unknown secret. */
 export async function open<T>(token: string, secrets: Secrets): Promise<T | null> {
+  if (typeof token !== "string") return null;
   const parts = token.split(".");
+  if (!parts.slice(1).every(isCanonicalB64url)) return null;
   try {
     if (parts[0] === "aw2" && parts.length === 4) {
       for (const secret of [secrets.current, secrets.previous]) {

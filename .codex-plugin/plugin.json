@@ -1,6 +1,6 @@
 {
   "name": "astra-db",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
   "author": {
     "name": "JEStats",
@@ -28,7 +28,7 @@
       "command": "npx",
       "args": [
         "-y",
-        "@erichare/astra-mcp@2.0.0"
+        "@erichare/astra-mcp@2.1.0"
       ],
       "env": {
         "ASTRA_MCP_CLIENT": "codex"

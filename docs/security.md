@@ -42,7 +42,7 @@ Deleting or replacing a leaked token is never blocked, because the text being re
 
 - Writes are opt-in per connection: the *Allow writes* box on the OAuth consent page (scope `astra:write`), or `X-Astra-Allow-Writes: true` with raw bearer credentials. Without either, write tools aren't registered for that request.
 - OAuth follows the current MCP authorization spec: PKCE S256 only, `iss` on every redirect, audience-bound tokens, 1-hour access tokens, and rotating refresh tokens (30 days sliding, 90 days maximum). Client ID Metadata Documents are fetched with SSRF protections (https only, no redirects, private addresses refused on the connected address, size and time limits). Request-supplied endpoints must be Astra's own hosts.
-- Tokens are sealed with AES-256-GCM under a key derived from the deployment secret. With an optional Redis store, refresh tokens are single-use and a replay revokes the chain; without one the server is stateless and a used refresh token stays valid until it expires (rotate the secret, or revoke the Astra token itself). Details in [hosted.md](hosted.md).
+- Tokens are sealed with AES-256-GCM under a key derived from the deployment secret. OAuth code and refresh grants require a shared Redis store: codes are single-use, and refresh-token replay revokes the chain. Missing or unavailable storage fails with a retryable 503. Already issued access tokens remain valid until expiry; revoke the upstream Astra token or rotate the deployment secret to cut off access. Details in [hosted.md](hosted.md).
 
 ## Supply chain
 

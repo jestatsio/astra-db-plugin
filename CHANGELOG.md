@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 2.1.0 — 2026-09-29
 
 - Brand the unofficial Astra DB plugin as **JEStats Astra DB Plugin**, with original artwork and the current jestats.io palette across manifests, documentation, CLI help, interactive views, and hosted consent.
 - Prepare repository links and installer sources for `jestatsio/astra-db-plugin`, retaining the `astra-db` plugin ID, `astra-db-marketplace` marketplace ID, and `@erichare/astra-mcp` npm package.
@@ -8,6 +8,11 @@
 - Document existing Astra CLI profile reuse, make token entry optional in the Desktop bundle, and clarify that hosted OAuth still requires an Astra application token.
 - Correct privacy disclosures for HTML export cleanup and optional hosted replay storage; add a full UX assessment and store submission draft.
 - Show the hosted consent warning when Allow writes is selected.
+- Add `login --profile` / `--astrarc`: save connection selectors without copying the CLI token, honor profile rotation without restart, and pair tokens with their Astra control-plane environment. Add `--astra-env` for manual token setup and clear missing-profile diagnostics.
+- Preserve existing credential, read-only, disabled, and permission settings when reinstalling Cursor, VS Code, and Bob.
+- Require working shared replay storage for hosted OAuth code/refresh grants, consume authorization codes once, reject alternate sealed-token encodings, and block private IPv4-mapped/IPv6 metadata destinations. Self-hosters must configure Redis before upgrading; existing access tokens retain their normal expiry.
+- Correct delete tool idempotency hints, include vendored-content NOTICE in npm/Desktop bundles, and publish release checksums.
+- Use npm staged publishing with maintainer approval and exact package/registry readback; registry failures now block GitHub release publication.
 
 ## 2.0.0 — 2026-09-24
 

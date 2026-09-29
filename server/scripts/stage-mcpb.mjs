@@ -21,6 +21,7 @@ copyFileSync(join(root, "dist/cli.js"), join(stage, "server/cli.js"));
 copyFileSync(join(root, "dist/assets.json"), join(stage, "server/assets.json"));
 if (existsSync(join(root, "THIRD_PARTY_NOTICES.md"))) cpSync(join(root, "THIRD_PARTY_NOTICES.md"), join(stage, "THIRD_PARTY_NOTICES.md"));
 cpSync(join(root, "..", "LICENSE"), join(stage, "LICENSE"));
+cpSync(join(root, "..", "NOTICE"), join(stage, "NOTICE"));
 
 const mcpb = ["-y", "@anthropic-ai/mcpb@2.1.2"];
 execFileSync("npx", [...mcpb, "validate", join(stage, "manifest.json")], { stdio: "inherit" });
