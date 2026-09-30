@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Fixed
+
+- The Claude Code manifest no longer lists `hooks/hooks.json`. Claude Code loads that file by default, so the extra entry registered it twice.
+- The Claude Code manifest sets `documentationUrl`, `supportUrl`, and `privacyPolicyUrl`, so the plugin directory links to this repository's README, issues, and privacy policy.
 - Brand the unofficial Astra DB plugin as **JEStats Astra DB Plugin**, with original artwork and the current jestats.io palette across manifests, documentation, CLI help, interactive views, and hosted consent.
 - Prepare repository links and installer sources for `jestatsio/astra-db-plugin`, retaining the `astra-db` plugin ID, `astra-db-marketplace` marketplace ID, and `@erichare/astra-mcp` npm package.
 - Prepare the MCP Registry identity `io.github.jestatsio/astra-mcp` for the transferred repository's GitHub OIDC publisher.

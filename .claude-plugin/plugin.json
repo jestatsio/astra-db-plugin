@@ -10,6 +10,9 @@
   },
   "homepage": "https://github.com/jestatsio/astra-db-plugin",
   "repository": "https://github.com/jestatsio/astra-db-plugin",
+  "documentationUrl": "https://github.com/jestatsio/astra-db-plugin#readme",
+  "supportUrl": "https://github.com/jestatsio/astra-db-plugin/issues",
+  "privacyPolicyUrl": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md",
   "license": "Apache-2.0",
   "keywords": [
     "astra",
@@ -51,7 +54,6 @@
       "default": false
     }
   },
-  "hooks": "./hooks/hooks.json",
   "mcpServers": {
     "astra-db": {
       "command": "npx",

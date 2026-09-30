@@ -17,7 +17,10 @@ test("Claude plugin runs the pinned server with userConfig passed as ASTRA_MCP_C
   assert.ok(!("ASTRA_DB_APPLICATION_TOKEN" in env), "must not clobber a token exported in the shell");
   assert.equal(claude.userConfig.token.sensitive, true);
   assert.equal(claude.userConfig.token.required, false);
-  assert.ok(exists(claude.hooks));
+  assert.ok(!("hooks" in claude), "Claude Code loads hooks/hooks.json by default; listing it again is a duplicate");
+  assert.ok(exists("hooks/hooks.json"));
+  for (const key of ["documentationUrl", "supportUrl", "privacyPolicyUrl"]) assert.match(claude[key], /^https:\/\//, key);
+  assert.ok(exists("docs/privacy.md"));
   assert.ok(!exists(".mcp.json"), "no root .mcp.json (it would also load as project config for contributors)");
 });
 
