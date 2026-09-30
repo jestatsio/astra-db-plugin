@@ -69,8 +69,10 @@ const result = await build({
   logLevel: "warning",
 });
 chmodSync(join(root, "dist/cli.js"), 0o755);
-// npm package extras: the repository license next to package.json.
-if (existsSync(join(repo, "LICENSE"))) writeFileSync(join(root, "LICENSE"), readFileSync(join(repo, "LICENSE")));
+// npm package extras: license and vendored-content attribution next to package.json.
+for (const name of ["LICENSE", "NOTICE"]) {
+  if (existsSync(join(repo, name))) writeFileSync(join(root, name), readFileSync(join(repo, name)));
+}
 writeFileSync(join(root, "dist/assets.json"), assetsJson);
 
 // Third-party notices for everything bundled into dist/cli.js.

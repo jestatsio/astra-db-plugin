@@ -6,9 +6,9 @@ Unofficial, community-maintained Astra DB integration by [JEStats](https://jesta
 npx -y @erichare/astra-mcp init
 ```
 
-`init` detects your agents and configures each one. Its `login` step then asks for an Astra application token with hidden input, lets you pick a database, and writes `ASTRA_DB_*` variables to a git-ignored `.env`. There's no restart: the server re-reads credentials on every call. Requires Node.js 20+.
+`init` detects your agents and configures each one. Its `login` step reuses an existing credential source or asks for an Astra application token with hidden input, lets you pick a database, and writes connection settings to a git-ignored `.env`. There's no restart: the server re-reads credentials on every call. Requires Node.js 20+.
 
-Already configured the Astra CLI? Use `init --no-login` to reuse your `.astrarc` profile directly, followed by `doctor`. Set `ASTRA_PROFILE` for a named profile and `ASTRA_DB_NAME` or `ASTRA_DB_API_ENDPOINT` when multiple databases are accessible. This avoids copying the CLI token into a second file. The npm package name stays unchanged for compatibility.
+Already configured the Astra CLI? Run `login --profile analytics` to choose a database from a named profile, or use `init --no-login` followed by `doctor` to reuse the default configuration directly. Profile login stores only the profile/config selector and connection details, keeping the token in `.astrarc`. The npm package name stays unchanged for compatibility.
 
 ## Commands
 
@@ -16,7 +16,7 @@ Already configured the Astra CLI? Use `init --no-login` to reuse your `.astrarc`
 | --- | --- |
 | `astra-mcp` | Serve MCP over stdio (the default when stdin isn't a terminal) |
 | `astra-mcp init` | Configure agents: `--agents a,b`, `--project`, `--dry-run`, `--yes`, `--no-login` |
-| `astra-mcp login` | Connect a database: `--global`, `--database`, `--keyspace`, `--endpoint`, `--token-stdin` |
+| `astra-mcp login` | Connect a database: `--profile`, `--astrarc`, `--astra-env`, `--global`, `--database`, `--keyspace`, `--endpoint`, `--token-stdin` |
 | `astra-mcp doctor` | Check credentials, connectivity, `.env` hygiene, and agent setup (`--json`) |
 | `astra-mcp uninstall` | Undo `init` |
 | `astra-mcp serve --read-only` | Serve without the write tools |
@@ -42,4 +42,4 @@ The package bundles everything into one file with no runtime dependencies. Relea
 
 Documentation, the Claude Code and Codex plugin, and the hosted OAuth endpoint for ChatGPT and claude.ai: **[github.com/jestatsio/astra-db-plugin](https://github.com/jestatsio/astra-db-plugin)**.
 
-Apache-2.0. Includes documentation-derived examples vendored from [sl-at-ibm/astra-toolkit-skill](https://github.com/sl-at-ibm/astra-toolkit-skill); see NOTICE in the repository. Community project, not an official DataStax or IBM product.
+Apache-2.0 for this plugin's own code. Includes documentation-derived examples vendored from [sl-at-ibm/astra-toolkit-skill](https://github.com/sl-at-ibm/astra-toolkit-skill); see the bundled NOTICE for attribution and upstream licensing status. Community project, not an official DataStax or IBM product.

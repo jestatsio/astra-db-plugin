@@ -61,6 +61,21 @@ export function mcpEntry(platform: NodeJS.Platform, extra: Record<string, unknow
   return { ...base, ...extra };
 }
 
+/** Refresh the managed launcher without resetting credentials or permission choices. */
+export function mergeMcpEntry(existing: unknown, next: Record<string, unknown>): Record<string, unknown> {
+  const record = (value: unknown): Record<string, unknown> =>
+    value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : {};
+  const previous = record(existing);
+  const nextEnv = record(next.env);
+  const env = { ...nextEnv, ...record(previous.env) };
+  if (nextEnv.ASTRA_MCP_CLIENT !== undefined) env.ASTRA_MCP_CLIENT = nextEnv.ASTRA_MCP_CLIENT;
+  return {
+    ...next, ...previous, command: next.command, args: next.args,
+    ...(next.type !== undefined ? { type: next.type } : {}),
+    ...(Object.keys(env).length ? { env } : {}),
+  };
+}
+
 function isLegacyEntry(value: unknown): boolean {
   const text = JSON.stringify(value ?? "");
   return text.includes("@datastax/astra-db-mcp") || text.includes("server/dist/index.js") || text.includes("astra-widgets");
@@ -95,7 +110,8 @@ function jsonAgent(spec: {
       actions.push({
         describe: `set "${SERVER_KEY}" in ${path}${isLegacyEntry(existing[SERVER_KEY]) ? " (replacing the legacy entry)" : ""}`,
         apply: () => {
-          editJsonc(path, [spec.key, SERVER_KEY], spec.entry(env));
+          const current = readJsonc<Record<string, Record<string, unknown>>>(path)?.[spec.key]?.[SERVER_KEY];
+          editJsonc(path, [spec.key, SERVER_KEY], mergeMcpEntry(current, spec.entry(env)));
           return { ok: true, detail: path };
         },
       });
@@ -234,10 +250,11 @@ const vscode: Agent = (() => {
     ...base,
     install(env, options) {
       if (options.project || !env.has("code")) return base.install(env, options);
-      const entry = { name: SERVER_KEY, type: "stdio", ...mcpEntry(env.platform), env: { ASTRA_MCP_PROJECT_DIR: "${workspaceFolder}", ASTRA_MCP_CLIENT: "vscode" } };
       return [{
         describe: "code --add-mcp (user profile)",
         apply: () => {
+          const current = readJsonc<Record<string, Record<string, unknown>>>(join(vscodeUserDir(env), "mcp.json"))?.servers?.[SERVER_KEY];
+          const entry = { ...mergeMcpEntry(current, { type: "stdio", ...mcpEntry(env.platform), env: { ASTRA_MCP_PROJECT_DIR: "${workspaceFolder}", ASTRA_MCP_CLIENT: "vscode" } }), name: SERVER_KEY };
           const r = env.exec("code", ["--add-mcp", JSON.stringify(entry)]);
           if (r.ok) return { ok: true };
           return base.install(env, options).reduce((acc, action) => (acc.ok ? action.apply() : acc), { ok: true } as { ok: boolean; detail?: string });

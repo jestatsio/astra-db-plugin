@@ -3,7 +3,7 @@
   "manifest_version": "0.3",
   "name": "astra-db",
   "display_name": "JEStats Astra DB Plugin",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "description": "Unofficial Astra DB integration by JEStats: query, vector search, guarded writes, and views.",
   "long_description": "Unofficial, community-maintained integration by JEStats; not affiliated with or endorsed by DataStax or IBM. Connects Claude to Astra DB (DataStax / IBM). Explore keyspaces, collections, and tables; read with filters; run vector and hybrid search; insert, update, and create schema — destructive operations always ask first. Results render as interactive views, and code_examples returns idiomatic client code for Python, TypeScript, Java, C#, and Go. Reuse an Astra CLI profile or global login, or supply a token in this form to store it in the OS keychain.",
   "author": {

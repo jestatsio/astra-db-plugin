@@ -3,7 +3,7 @@
   "name": "io.github.jestatsio/astra-mcp",
   "title": "JEStats Astra DB Plugin",
   "description": "Unofficial Astra DB integration by JEStats: query, vector search, guarded writes, and views.",
-  "version": "2.0.0",
+  "version": "2.1.0",
   "websiteUrl": "https://github.com/jestatsio/astra-db-plugin",
   "repository": {
     "url": "https://github.com/jestatsio/astra-db-plugin",
@@ -23,7 +23,7 @@
     {
       "registryType": "npm",
       "identifier": "@erichare/astra-mcp",
-      "version": "2.0.0",
+      "version": "2.1.0",
       "runtimeHint": "npx",
       "transport": {
         "type": "stdio"

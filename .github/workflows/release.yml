@@ -1,8 +1,8 @@
 name: Release
 
-# Publishes @erichare/astra-mcp to npm (trusted publishing + provenance), the MCP
-# Registry (GitHub OIDC), and a GitHub Release with the Claude Desktop .mcpb and
-# the IBM Bob bundle.
+# Stages @erichare/astra-mcp for npm approval (trusted publishing + provenance),
+# then publishes to the MCP Registry (GitHub OIDC) and creates a GitHub Release
+# with the Claude Desktop .mcpb and the IBM Bob bundle.
 #
 # - Push a tag vX.Y.Z (matching every manifest), or
 # - run it manually on any branch: it releases the version in the manifests at
@@ -64,29 +64,44 @@ jobs:
         with:
           node-version: "22"
           registry-url: https://registry.npmjs.org
-      - name: Use an npm with trusted publishing
-        run: npm install -g npm@latest
+      - name: Use npm with staged trusted publishing
+        run: npm install -g npm@12.1.0
       - run: npm ci --no-fund --no-audit
       - run: npm run build
-      - name: Publish (skip if this version already exists)
+      - name: Check the exact published npm version
+        id: npm-state
+        run: |
+          state=$(node ../scripts/verify-publication.mjs npm --allow-missing)
+          echo "state=$state" >> "$GITHUB_OUTPUT"
+      - name: Stage npm package for maintainer approval
+        if: steps.npm-state.outputs.state == 'missing'
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
           VERSION: ${{ needs.version.outputs.version }}
           NPM_TAG: ${{ inputs.npm_tag || 'latest' }}
         run: |
           # Pre-release versions (2.1.0-rc.1) never take over "latest".
-          case "$VERSION" in *-*) [ "$NPM_TAG" = latest ] && NPM_TAG=next ;; esac
-          if npm view "@erichare/astra-mcp@${VERSION}" version >/dev/null 2>&1; then
-            echo "@erichare/astra-mcp@${VERSION} is already published"
-          else
-            npm publish --provenance --access public --tag "$NPM_TAG"
-          fi
+          case "$VERSION" in *-*) if [ "$NPM_TAG" = latest ]; then NPM_TAG=next; fi ;; esac
+          {
+            echo "### npm approval required: @erichare/astra-mcp@${VERSION}"
+            echo "Review this run's source commit and staged package on [npmjs.com](https://www.npmjs.com/package/@erichare/astra-mcp/access), then approve with 2FA within 20 minutes."
+            echo "If staging reports E409 (a version conflict), inspect the staged version there, approve the expected artifact, then rerun failed jobs. Conflicts and authentication errors are never automatically accepted."
+            echo "If the approval wait times out, approve the expected artifact and rerun failed jobs; the public package's namespace, repository, and source commit must match."
+          } >> "$GITHUB_STEP_SUMMARY"
+          npm stage publish --provenance --access public --tag "$NPM_TAG"
+      - name: Await npm approval and verify the public package
+        if: steps.npm-state.outputs.state == 'missing'
+        timeout-minutes: 25
+        run: node ../scripts/verify-publication.mjs npm --wait-for-approval
       - name: Smoke-test the published package
         working-directory: ${{ runner.temp }}
         env:
           VERSION: ${{ needs.version.outputs.version }}
         run: |
-          for i in 1 2 3 4 5 6; do npx -y "@erichare/astra-mcp@${VERSION}" --version && exit 0; sleep 10; done
+          for attempt in 1 2 3 4 5 6; do
+            echo "Published-package smoke test $attempt/6"
+            if actual=$(npx -y "@erichare/astra-mcp@${VERSION}" --version) && [ "$actual" = "$VERSION" ]; then exit 0; fi
+            sleep 10
+          done
           exit 1
 
   registry:
@@ -97,15 +112,24 @@ jobs:
       id-token: write
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
       - name: Publish server.json to the MCP Registry
         working-directory: server
         run: |
-          curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/latest/download/mcp-publisher_linux_amd64.tar.gz" | tar xz mcp-publisher
-          ./mcp-publisher login github-oidc
-          ./mcp-publisher publish || echo "::warning::MCP Registry publish failed (version may already exist)"
+          state=$(node ../scripts/verify-publication.mjs registry --allow-missing)
+          if [ "$state" = missing ]; then
+            curl -fsSL "https://github.com/modelcontextprotocol/registry/releases/download/v1.8.1/mcp-publisher_linux_amd64.tar.gz" -o "$RUNNER_TEMP/mcp-publisher.tar.gz"
+            echo "a06c9096dcb9727c13555b6be26c7effa707b01f06a4c561ba7a3635443cf2cc  $RUNNER_TEMP/mcp-publisher.tar.gz" | sha256sum -c -
+            tar xzf "$RUNNER_TEMP/mcp-publisher.tar.gz" mcp-publisher
+            ./mcp-publisher login github-oidc
+            ./mcp-publisher publish
+          fi
+          node ../scripts/verify-publication.mjs registry --wait
 
   github-release:
-    needs: [npm, version]
+    needs: [npm, registry, version]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -123,6 +147,13 @@ jobs:
           npm run build
           npm run pack:mcpb
           node dist/cli.js bob-bundle --out "dist/astra-db-bob.zip"
+      - name: Hash release assets
+        working-directory: server/dist
+        env:
+          VERSION: ${{ needs.version.outputs.version }}
+        run: |
+          sha256sum "astra-db-${VERSION}.mcpb" astra-db.mcpb astra-db-bob.zip > SHA256SUMS
+          sha256sum -c SHA256SUMS
       - name: Create the GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
@@ -130,9 +161,13 @@ jobs:
           PRERELEASE: ${{ inputs.prerelease && '--prerelease' || '' }}
         run: |
           node scripts/release-notes.mjs "$VERSION" > "$RUNNER_TEMP/notes.md"
+          release_args=()
+          if [ "$PRERELEASE" = --prerelease ]; then release_args+=(--prerelease); fi
           if gh release view "v${VERSION}" >/dev/null 2>&1; then
-            gh release upload "v${VERSION}" server/dist/astra-db-${VERSION}.mcpb server/dist/astra-db.mcpb server/dist/astra-db-bob.zip --clobber
+            release_sha=$(gh api "repos/${GITHUB_REPOSITORY}/commits/v${VERSION}" --jq .sha)
+            if [ "$release_sha" != "$GITHUB_SHA" ]; then echo "::error::Existing release tag points at a different source commit"; exit 1; fi
+            gh release upload "v${VERSION}" "server/dist/astra-db-${VERSION}.mcpb" server/dist/astra-db.mcpb server/dist/astra-db-bob.zip server/dist/SHA256SUMS --clobber
           else
-            gh release create "v${VERSION}" --target "$GITHUB_SHA" --title "v${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" $PRERELEASE \
-              server/dist/astra-db-${VERSION}.mcpb server/dist/astra-db.mcpb server/dist/astra-db-bob.zip
+            gh release create "v${VERSION}" --target "$GITHUB_SHA" --title "v${VERSION}" --notes-file "$RUNNER_TEMP/notes.md" "${release_args[@]}" \
+              "server/dist/astra-db-${VERSION}.mcpb" server/dist/astra-db.mcpb server/dist/astra-db-bob.zip server/dist/SHA256SUMS
           fi

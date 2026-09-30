@@ -5,8 +5,8 @@
  *   ASTRA_DB_APPLICATION_TOKEN=AstraCS:...
  *   ASTRA_ENV=prod
  *
- * Location, first match wins: $ASTRARC, $XDG_CONFIG_HOME/astra/.astrarc,
- * ~/.astrarc (%USERPROFILE%\.astrarc on Windows).
+ * Explicit $ASTRARC selects one file; otherwise the first readable location wins:
+ * $XDG_CONFIG_HOME/astra/.astrarc, ~/.astrarc (%USERPROFILE%\.astrarc on Windows).
  */
 import { join } from "node:path";
 
@@ -15,16 +15,18 @@ export interface AstrarcProfile {
   environment?: string;
 }
 
+export type AstrarcProfiles = Record<string, Record<string, string>>;
+
 export function astrarcCandidates(env: NodeJS.ProcessEnv, home: string): string[] {
+  if (env.ASTRARC) return [env.ASTRARC];
   const out: string[] = [];
-  if (env.ASTRARC) out.push(env.ASTRARC);
   if (env.XDG_CONFIG_HOME) out.push(join(env.XDG_CONFIG_HOME, "astra", ".astrarc"));
   out.push(join(home, ".astrarc"));
   return out;
 }
 
-export function parseAstrarc(text: string): Record<string, Record<string, string>> {
-  const sections: Record<string, Record<string, string>> = {};
+export function parseAstrarc(text: string): AstrarcProfiles {
+  const sections: AstrarcProfiles = {};
   let current: Record<string, string> | undefined;
   for (const raw of text.split(/\r?\n/)) {
     const line = raw.trim();
@@ -40,8 +42,8 @@ export function parseAstrarc(text: string): Record<string, Record<string, string
   return sections;
 }
 
-export function profileFrom(text: string, profile = "default"): AstrarcProfile | undefined {
-  const section = parseAstrarc(text)[profile];
+export function profileFrom(input: string | AstrarcProfiles, profile = "default"): AstrarcProfile | undefined {
+  const section = (typeof input === "string" ? parseAstrarc(input) : input)[profile];
   if (!section) return undefined;
   return {
     token: section.ASTRA_DB_APPLICATION_TOKEN ?? section.ASTRA_DB_TOKEN,

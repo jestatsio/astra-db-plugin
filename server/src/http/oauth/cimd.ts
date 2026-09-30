@@ -7,24 +7,29 @@
 import { type LookupAddress, type LookupOptions, lookup as dnsLookup } from "node:dns";
 import { lookup } from "node:dns/promises";
 import { request } from "node:https";
-import { isIP } from "node:net";
+import { BlockList, isIP } from "node:net";
 import type { ResolvedClient } from "./types.js";
 
 const MAX_BYTES = 64 * 1024;
 const TTL_MS = 5 * 60_000;
 const cache = new Map<string, { at: number; client: ResolvedClient }>();
+const nonPublic = new BlockList();
+for (const [network, prefix] of [
+  ["0.0.0.0", 8], ["10.0.0.0", 8], ["100.64.0.0", 10], ["127.0.0.0", 8],
+  ["169.254.0.0", 16], ["172.16.0.0", 12], ["192.168.0.0", 16], ["224.0.0.0", 3],
+] as const) nonPublic.addSubnet(network, prefix, "ipv4");
+for (const [network, prefix] of [
+  ["::", 128], ["::1", 128], ["fc00::", 7], ["fe80::", 10], ["fec0::", 10], ["ff00::", 8],
+] as const) nonPublic.addSubnet(network, prefix, "ipv6");
 
 export function isMetadataClientId(clientId: string): boolean {
   return clientId.startsWith("https://");
 }
 
 function privateAddress(address: string): boolean {
-  if (address.includes(":")) {
-    const a = address.toLowerCase();
-    return a === "::1" || a === "::" || a.startsWith("fc") || a.startsWith("fd") || a.startsWith("fe80") || a.startsWith("::ffff:127.") || a.startsWith("::ffff:10.") || a.startsWith("::ffff:192.168.");
-  }
-  const [a, b] = address.split(".").map(Number);
-  return a === 10 || a === 127 || a === 0 || (a === 169 && b === 254) || (a === 172 && b >= 16 && b <= 31) || (a === 192 && b === 168) || (a === 100 && b >= 64 && b <= 127) || a >= 224;
+  const family = isIP(address);
+  // BlockList also applies IPv4 rules to IPv4-mapped IPv6, including hex forms.
+  return family === 0 || nonPublic.check(address, family === 6 ? "ipv6" : "ipv4");
 }
 
 export async function assertPublicHost(hostname: string): Promise<void> {

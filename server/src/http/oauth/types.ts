@@ -32,7 +32,7 @@ export interface ClientRegistration {
 
 export interface CodeToken { t: "code"; grant: Grant; redirect_uri: string; code_challenge: string; exp: number }
 export interface AccessToken { t: "access"; grant: Grant; exp: number }
-/** `fam` names the chain of rotations since consent; replaying any member revokes the chain (with a replay store). */
+/** `fam` names the chain of rotations since consent; replaying any member revokes the chain. */
 export interface RefreshToken { t: "refresh"; grant: Grant; exp: number; max: number; fam?: string }
 
 /** Legacy v1.2.x token shapes (aw1), accepted as read-only grants. */
@@ -54,11 +54,11 @@ export interface OAuthDeps {
   /** Fetch a Client ID Metadata Document (injectable for tests). */
   fetchClientMetadata?: (url: string) => Promise<unknown>;
   now?: () => number;
-  /** Makes refresh tokens single-use. Without it the server is fully stateless (see docs/hosted.md). */
+  /** Shared single-use code/refresh storage. Token grants fail with 503 when absent or unavailable. */
   replay?: ReplayStore;
 }
 
-/** A shared, expiring set (e.g. Redis): what enforces one use per refresh token. */
+/** A shared, expiring set (e.g. Redis): enforces one use per authorization code and refresh token. */
 export interface ReplayStore {
   /** Record `key` for `ttlSeconds`; false when it was already recorded. */
   claim(key: string, ttlSeconds: number): Promise<boolean>;

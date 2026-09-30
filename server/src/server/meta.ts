@@ -19,7 +19,7 @@ export const READ: ToolAnnotations = { readOnlyHint: true, destructiveHint: fals
 export const OFFLINE_READ: ToolAnnotations = { readOnlyHint: true, destructiveHint: false, idempotentHint: true, openWorldHint: false };
 export const INSERT: ToolAnnotations = { readOnlyHint: false, destructiveHint: false, idempotentHint: false, openWorldHint: true };
 export const UPDATE: ToolAnnotations = { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true };
-export const DELETE: ToolAnnotations = { readOnlyHint: false, destructiveHint: true, idempotentHint: true, openWorldHint: true };
+export const DELETE: ToolAnnotations = { readOnlyHint: false, destructiveHint: true, idempotentHint: false, openWorldHint: true };
 export const DDL: ToolAnnotations = { readOnlyHint: false, destructiveHint: false, idempotentHint: true, openWorldHint: true };
 
 /** Tool `_meta` linking a tool to the app shell (MCP Apps; `openai/outputTemplate` for older ChatGPT builds). */

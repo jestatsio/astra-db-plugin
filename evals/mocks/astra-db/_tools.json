@@ -1666,7 +1666,7 @@
         "title": "Drop collection, table, or index",
         "readOnlyHint": false,
         "destructiveHint": true,
-        "idempotentHint": true,
+        "idempotentHint": false,
         "openWorldHint": true
       },
       "_meta": {

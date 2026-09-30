@@ -54,6 +54,11 @@ describe("dotenv", () => {
     const merged = mergeDotenv("# keep\nA=1\nB=2\n", { B: "20", C: "has space", A: undefined });
     expect(merged).toBe('# keep\nB=20\n\nC="has space"\n');
     expect(mergeDotenv("", { X: "1" })).toBe("X=1\n");
+    expect(mergeDotenv("A=first\nA=second\nB=keep\n", { A: undefined })).toBe("B=keep\n");
+  });
+  it("round trips a quoted Windows CLI path without interpreting its backslashes as newlines", () => {
+    const values = { ASTRARC: "C:\\new\\test team\\work.astrarc", CUSTOM: 'line one\n"quoted"' };
+    expect(parseDotenv(mergeDotenv("", values))).toEqual(values);
   });
 });
 
@@ -127,6 +132,55 @@ describe("CredentialResolver", () => {
     writeFileSync(path, "ASTRA_DB_APPLICATION_TOKEN=AstraCS:rotatedrotated\n");
     utimesSync(path, new Date(), new Date(Date.now() + 5000));
     expect(resolver.resolve().token?.value).toBe("AstraCS:rotatedrotated");
+  });
+
+  it("pairs the Astra environment with the selected token source", () => {
+    const { home, project } = sandbox();
+    writeFileSync(join(home, ".astrarc"), `[default]\nASTRA_DB_APPLICATION_TOKEN=${TOKEN}\nASTRA_ENV=dev\n`);
+    const shell = new CredentialResolver({ env: { ASTRA_DB_TOKEN: "AstraCS:shell-token" }, cwd: project, home }).resolve();
+    expect(shell.astraEnv).toBe("prod");
+    writeFileSync(join(project, ".env"), "ASTRA_DB_TOKEN=AstraCS:project-token\nASTRA_ENV=test\n");
+    expect(new CredentialResolver({ env: {}, cwd: project, home }).resolve().astraEnv).toBe("test");
+  });
+
+  it("resolves CLI profile metadata from project and global configuration", () => {
+    const { home, project } = sandbox();
+    const config = join(home, "work.astrarc");
+    writeFileSync(config, `[work]\nASTRA_DB_APPLICATION_TOKEN=${TOKEN}\nASTRA_ENV=dev\n`);
+    writeFileSync(join(project, ".env"), `ASTRA_PROFILE=work\nASTRARC=${config}\nASTRA_DB_KEYSPACE=project_ks\n`);
+    const projectCreds = new CredentialResolver({ env: {}, cwd: project, home }).resolve();
+    expect(projectCreds.token).toMatchObject({ value: TOKEN, source: "astra-cli" });
+    expect(projectCreds.cliProfile).toEqual({ name: "work", path: config });
+    expect(projectCreds.astraEnv).toBe("dev");
+    const userFile = join(home, "credentials.json");
+    writeFileSync(userFile, JSON.stringify({ profile: "work", astrarc: config, endpoint: "https://global.example" }));
+    const globalCreds = new CredentialResolver({ env: { ASTRA_MCP_CREDENTIALS_FILE: userFile }, cwd: home, home }).resolve();
+    expect(globalCreds.cliProfile).toEqual({ name: "work", path: config });
+    expect(globalCreds.endpoint?.value).toBe("https://global.example");
+    writeFileSync(userFile, JSON.stringify({ token: "AstraCS:global-token" }));
+    expect(new CredentialResolver({ env: { ASTRA_MCP_CREDENTIALS_FILE: userFile }, cwd: project, home }).resolve().token?.source).toBe("astra-cli");
+  });
+
+  it("switches cached profiles and follows CLI token rotation without a restart", () => {
+    const { home, project } = sandbox();
+    const config = join(home, ".astrarc");
+    writeFileSync(config, `[default]\nASTRA_DB_TOKEN=AstraCS:default-token\n[work]\nASTRA_DB_TOKEN=${TOKEN}\nASTRA_ENV=test\n`);
+    const env = { ASTRA_PROFILE: "default" };
+    const resolver = new CredentialResolver({ env, cwd: project, home });
+    expect(resolver.resolve().token?.value).toBe("AstraCS:default-token");
+    env.ASTRA_PROFILE = "work";
+    expect(resolver.resolve().token?.value).toBe(TOKEN);
+    writeFileSync(config, "[work]\nASTRA_DB_TOKEN=AstraCS:rotated-profile-token\nASTRA_ENV=test\n");
+    utimesSync(config, new Date(), new Date(Date.now() + 5000));
+    expect(resolver.resolve().token?.value).toBe("AstraCS:rotated-profile-token");
+  });
+
+  it("fails closed for explicit missing profiles and config files, while higher-priority tokens win", () => {
+    const { home, project } = sandbox();
+    writeFileSync(join(home, ".astrarc"), `[default]\nASTRA_DB_TOKEN=${TOKEN}\n`);
+    expect(() => new CredentialResolver({ env: { ASTRA_PROFILE: "missing" }, cwd: project, home }).resolve()).toThrow(/profile 'missing'/);
+    expect(() => new CredentialResolver({ env: { ASTRARC: join(home, "missing.astrarc") }, cwd: project, home }).resolve()).toThrow(/missing\.astrarc/);
+    expect(new CredentialResolver({ env: { ASTRA_PROFILE: "missing", ASTRA_DB_TOKEN: TOKEN }, cwd: project, home }).resolve().token?.value).toBe(TOKEN);
   });
 
   it("reads switches and environment", () => {

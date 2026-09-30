@@ -20,11 +20,11 @@ Credentials never pass through the chat. Ask the user to run this in their own t
 npx -y @erichare/astra-mcp login
 ```
 
-It prompts for an application token with hidden input, lists their databases, lets them pick one and a keyspace, then writes `ASTRA_DB_APPLICATION_TOKEN`, `ASTRA_DB_API_ENDPOINT`, and `ASTRA_DB_KEYSPACE` to `./.env` (git-ignored). `--global` saves to their user profile instead, which suits Claude Desktop. No restart is needed: the server re-reads credentials on every call.
+It reuses existing credentials or prompts for an application token with hidden input, lists their databases, lets them pick one and a keyspace, then writes connection settings to `./.env` (git-ignored). CLI-profile reuse saves only profile/config metadata and connection details, keeping the token in the CLI configuration. A newly entered token is saved with mode 0600. `--global` saves to their user profile instead, which suits Claude Desktop. No restart is needed: the server re-reads credentials on every call.
 
 - **No token yet?** Tokens are created in the Astra console (astra.datastax.com → Settings → Tokens). Database Administrator covers everything; a read-only role is enough to explore.
 - **No database yet?** They can create one in the console, or with the Astra CLI (`astra db create <name> --region <region>`; see [../astra-toolkit/astra-cli/README.md](../astra-toolkit/astra-cli/README.md)).
-- **They already use the Astra CLI?** An `astra setup` profile in `~/.astrarc` is picked up automatically. A token that sees exactly one database needs no endpoint.
+- **They already use the Astra CLI?** An `astra setup` profile in `~/.astrarc` is picked up automatically. Use `login --profile NAME` for a named profile and `--astrarc PATH` for a custom configuration file. A token that sees exactly one database needs no endpoint. Astra still requires an application token upstream.
 
 Never ask for the token in chat, and never write a token into a file yourself. If the user pastes a token anyway, don't use, repeat, or store it: it is now in the conversation history, so suggest they rotate it in the Astra console and give the new one to `login` instead.
 

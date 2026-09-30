@@ -11,7 +11,7 @@ import { existsSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync
 import { dirname, join, relative } from "node:path";
 import { strToU8, zipSync } from "fflate";
 import { type Assets, filesUnder } from "../assets.js";
-import { SERVER_KEY, SERVER_SPEC } from "./agents.js";
+import { SERVER_KEY, SERVER_SPEC, mergeMcpEntry } from "./agents.js";
 import { editJsonc, readJsonc, readText } from "./fsutil.js";
 
 const BEGIN = "# astra-db:begin (managed by astra-mcp — edits between these markers are overwritten)";
@@ -203,9 +203,10 @@ export function installBob(assets: Assets, layout: BobLayout): BobResult {
   mkdirSync(dirname(layout.modesFile), { recursive: true });
   writeFileSync(layout.modesFile, mergeCustomModes(readText(layout.modesFile), skills.filter((s) => s.kind === "persona")));
 
-  editJsonc(layout.mcpFile, ["mcpServers", SERVER_KEY], {
+  const existing = readJsonc<Record<string, Record<string, unknown>>>(layout.mcpFile)?.mcpServers?.[SERVER_KEY];
+  editJsonc(layout.mcpFile, ["mcpServers", SERVER_KEY], mergeMcpEntry(existing, {
     command: "npx", args: ["-y", SERVER_SPEC], env: { ASTRA_MCP_CLIENT: "bob" }, alwaysAllow: READ_TOOLS, disabled: false,
-  });
+  }));
   const settings = readJsonc<{ hooks?: Record<string, unknown[]> }>(layout.settingsFile) ?? {};
   const strip = (entries: unknown[] | undefined) => (entries ?? []).filter((e) => !JSON.stringify(e).includes("astra-db"));
   editJsonc(layout.settingsFile, ["hooks", "PreToolUse"], [...strip(settings.hooks?.PreToolUse), {
