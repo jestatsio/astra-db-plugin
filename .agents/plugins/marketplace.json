@@ -1,7 +1,7 @@
 {
   "name": "astra-db-marketplace",
   "interface": {
-    "displayName": "Astra DB Marketplace"
+    "displayName": "JEStats Astra DB Marketplace"
   },
   "plugins": [
     {

@@ -1,18 +1,17 @@
 {
   "name": "astra-db-marketplace",
   "owner": {
-    "name": "Eric Hare",
-    "email": "ericrhare@gmail.com"
+    "name": "JEStats"
   },
   "metadata": {
-    "description": "Astra DB for coding agents — skills, hooks, and the @erichare/astra-mcp server.",
+    "description": "Unofficial Astra DB integration by JEStats — skills, hooks, and the @erichare/astra-mcp server.",
     "version": "2.0.0"
   },
   "plugins": [
     {
       "name": "astra-db",
       "source": "./",
-      "description": "Astra DB (DataStax / IBM) for coding agents: live database tools with interactive views, guarded writes and schema changes, vector and hybrid search, data-modeling and review skills, and 1,600+ idiomatic Data API snippets for Python, TypeScript, Java, C#, and Go.",
+      "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
       "category": "database",
       "keywords": [
         "astra",

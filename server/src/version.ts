@@ -16,4 +16,4 @@ export const VERSION: string = typeof __ASTRA_MCP_VERSION__ === "string" ? __AST
 
 export const PACKAGE_NAME = "@erichare/astra-mcp";
 export const SERVER_NAME = "astra-db";
-export const WEBSITE_URL = "https://github.com/erichare/astra-db-plugin";
+export const WEBSITE_URL = "https://github.com/jestatsio/astra-db-plugin";

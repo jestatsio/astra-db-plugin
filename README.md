@@ -1,12 +1,12 @@
 <p align="center">
-  <img src="assets/banner.svg" alt="Astra DB for Agents — explore, query, and build on Astra DB from any agent" width="100%">
+  <img src="assets/banner-v2.svg" alt="JEStats Astra DB Plugin — unofficial Astra DB integration for coding agents" width="100%">
 </p>
 
 <p align="center">
-  <a href="https://github.com/erichare/astra-db-plugin/actions/workflows/ci.yml"><img src="https://github.com/erichare/astra-db-plugin/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
-  <a href="https://www.npmjs.com/package/@erichare/astra-mcp"><img src="https://img.shields.io/npm/v/@erichare/astra-mcp?label=npm&color=7c3aed" alt="npm"></a>
-  <a href="https://github.com/erichare/astra-db-plugin/releases"><img src="https://img.shields.io/github/v/release/erichare/astra-db-plugin?label=release&color=brightgreen" alt="Release"></a>
-  <a href="https://skillsaw.org/"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Ferichare%2Fastra-db-plugin%2Fmain%2F.skillsaw-badge.json" alt="skillsaw grade"></a>
+  <a href="https://github.com/jestatsio/astra-db-plugin/actions/workflows/ci.yml"><img src="https://github.com/jestatsio/astra-db-plugin/actions/workflows/ci.yml/badge.svg" alt="CI"></a>
+  <a href="https://www.npmjs.com/package/@erichare/astra-mcp"><img src="https://img.shields.io/npm/v/@erichare/astra-mcp?label=npm&color=d9531e" alt="npm"></a>
+  <a href="https://github.com/jestatsio/astra-db-plugin/releases"><img src="https://img.shields.io/github/v/release/jestatsio/astra-db-plugin?label=release&color=brightgreen" alt="Release"></a>
+  <a href="https://skillsaw.org/"><img src="https://img.shields.io/endpoint?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjestatsio%2Fastra-db-plugin%2Fmain%2F.skillsaw-badge.json" alt="skillsaw grade"></a>
   <a href="LICENSE"><img src="https://img.shields.io/badge/license-Apache--2.0-blue" alt="License"></a>
 </p>
 
@@ -14,6 +14,8 @@
   <b>18 MCP tools · interactive views · guarded writes · ~1,660 Data API examples in 5 languages</b><br>
   Claude Code · Codex · Cursor · VS Code · Windsurf · Gemini CLI · Claude Desktop · IBM Bob · ChatGPT
 </p>
+
+**[JEStats](https://jestats.io) Astra DB Plugin is an unofficial, community-maintained integration. It is not affiliated with, endorsed by, or an official product of DataStax or IBM.**
 
 Give your coding agent a live view of your Astra DB. It can map a database, read a collection's real schema before writing code against it, run vector and hybrid searches, page through documents, and change data, asking you first before anything destructive. When it writes application code, it starts from canonical Data API snippets for Python, TypeScript, Java, C#, and Go instead of guessing.
 
@@ -23,7 +25,18 @@ Give your coding agent a live view of your Astra DB. It can map a database, read
 npx -y @erichare/astra-mcp init
 ```
 
-`init` finds the agents on your machine and sets each one up. Claude Code and Codex get the full plugin (skills, hooks, and the MCP server) from their plugin marketplaces; the others get the MCP server in their config. Then it connects a database:
+`init` finds the agents on your machine and sets each one up. Claude Code and Codex get the full plugin (skills, hooks, and the MCP server) from their plugin marketplaces; the others get the MCP server in their config.
+
+**Already use the Astra CLI?** The server can read your existing `~/.astrarc` profile directly. Install without the separate login step and check the connection:
+
+```bash
+npx -y @erichare/astra-mcp init --no-login
+npx -y @erichare/astra-mcp doctor
+```
+
+Use `ASTRA_PROFILE` for a named CLI profile. If the token can access multiple databases, set `ASTRA_DB_NAME` or `ASTRA_DB_API_ENDPOINT` in your environment. This route keeps the token in the CLI profile; the regular `login` flow currently copies an existing token into the project's `.env`. See [configuration](docs/configuration.md) for credential precedence.
+
+**Connecting without an existing profile?** Run the regular `init` flow above, or `npx -y @erichare/astra-mcp login`:
 
 1. Paste an application token at a hidden prompt. Create one in the [Astra console](https://astra.datastax.com) under **Settings → Tokens**.
 2. Pick a database and a keyspace.
@@ -37,7 +50,9 @@ No restart needed: the server re-reads credentials on every call. Now ask your a
 >
 > Write a TypeScript script that loads `products.json` into a new vectorize collection.
 
-Needs Node.js 20+. Prefer a one-liner? `curl -fsSL https://raw.githubusercontent.com/erichare/astra-db-plugin/main/install.sh | sh` (PowerShell: `irm https://raw.githubusercontent.com/erichare/astra-db-plugin/main/install.ps1 | iex`) runs the same `init`.
+Needs Node.js 20+. Prefer a one-liner? `curl -fsSL https://raw.githubusercontent.com/jestatsio/astra-db-plugin/main/install.sh | sh` (PowerShell: `irm https://raw.githubusercontent.com/jestatsio/astra-db-plugin/main/install.ps1 | iex`) runs the same `init`.
+
+The repository and public publisher are JEStats. The npm package remains `@erichare/astra-mcp`, and the plugin remains `astra-db@astra-db-marketplace`, so existing installations keep their identifiers. These are community marketplace installs; official directory submission and approval are separate steps. See the [release assessment](docs/release-plan.md) and [store listing draft](docs/store-listing.md).
 
 ## See your data
 
@@ -45,16 +60,16 @@ In hosts that render [MCP Apps](https://modelcontextprotocol.io/extensions/apps/
 
 <table>
   <tr>
-    <td width="50%"><img src="assets/widgets/similarity-light.png" alt="Vector search results: ranked hits with similarity bars and score statistics"></td>
-    <td width="50%"><img src="assets/widgets/card-dark.png" alt="Collection view: vector and vectorize settings, lexical and rerank, sample document"></td>
+    <td width="50%"><img src="assets/widgets/v2/similarity-light.png" alt="Vector search results: ranked hits with similarity bars and score statistics"></td>
+    <td width="50%"><img src="assets/widgets/v2/card-dark.png" alt="Collection view: vector and vectorize settings, lexical and rerank, sample document"></td>
   </tr>
   <tr>
-    <td><img src="assets/widgets/overview-light.png" alt="Database overview: keyspaces, collections with vector settings and counts, tables"></td>
-    <td><img src="assets/widgets/explorer-dark.png" alt="Explorer: documents table with field inventory, filters, and paging"></td>
+    <td><img src="assets/widgets/v2/overview-light.png" alt="Database overview: keyspaces, collections with vector settings and counts, tables"></td>
+    <td><img src="assets/widgets/v2/explorer-dark.png" alt="Explorer: documents table with field inventory, filters, and paging"></td>
   </tr>
   <tr>
-    <td><img src="assets/widgets/table-light.png" alt="Table view: columns, primary key, indexes, vector columns"></td>
-    <td><img src="assets/widgets/constellation-dark.png" alt="Similarity map: hits placed by score around the query"></td>
+    <td><img src="assets/widgets/v2/table-light.png" alt="Table view: columns, primary key, indexes, vector columns"></td>
+    <td><img src="assets/widgets/v2/constellation-dark.png" alt="Similarity map: hits placed by score around the query"></td>
   </tr>
 </table>
 
@@ -88,13 +103,13 @@ More in [docs/security.md](docs/security.md).
 
 | Agent | What you get | Manual setup |
 | --- | --- | --- |
-| **Claude Code** | Plugin: skills, `/astra-db:*` shortcuts, hooks, MCP server, settings for token, endpoint, keyspace, and read-only | `claude plugin marketplace add erichare/astra-db-plugin`<br>`claude plugin install astra-db@astra-db-marketplace` |
-| **OpenAI Codex** | Plugin: skills (`$astra-db:*`), hooks, MCP server | `codex plugin marketplace add erichare/astra-db-plugin`<br>`codex plugin add astra-db@astra-db-marketplace` |
+| **Claude Code** | Plugin: skills, `/astra-db:*` shortcuts, hooks, MCP server, settings for token, endpoint, keyspace, and read-only | `claude plugin marketplace add jestatsio/astra-db-plugin`<br>`claude plugin install astra-db@astra-db-marketplace` |
+| **OpenAI Codex** | Plugin: skills (`$astra-db:*`), hooks, MCP server | `codex plugin marketplace add jestatsio/astra-db-plugin`<br>`codex plugin add astra-db@astra-db-marketplace` |
 | **Cursor** | MCP server in `~/.cursor/mcp.json` | [![Add to Cursor](https://img.shields.io/badge/Cursor-Add_astra--db-111827)](https://cursor.com/en/install-mcp?name=astra-db&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIkBlcmljaGFyZS9hc3RyYS1tY3BAMiJdfQ%3D%3D) |
 | **VS Code** (Copilot) | MCP server in your user profile | [![Install in VS Code](https://img.shields.io/badge/VS_Code-Install_astra--db-0098FF?logo=visualstudiocode&logoColor=white)](https://insiders.vscode.dev/redirect/mcp/install?name=astra-db&config=%7B%22type%22%3A%22stdio%22%2C%22command%22%3A%22npx%22%2C%22args%22%3A%5B%22-y%22%2C%22%40erichare%2Fastra-mcp%402%22%5D%2C%22env%22%3A%7B%22ASTRA_MCP_PROJECT_DIR%22%3A%22%24%7BworkspaceFolder%7D%22%2C%22ASTRA_MCP_CLIENT%22%3A%22vscode%22%7D%7D) |
 | **Windsurf** | MCP server in `~/.codeium/windsurf/mcp_config.json` | `init --agents windsurf` |
 | **Gemini CLI** | MCP server in `~/.gemini/settings.json` | `init --agents gemini` |
-| **Claude Desktop** | MCP server in `claude_desktop_config.json` | Or open [`astra-db.mcpb`](https://github.com/erichare/astra-db-plugin/releases/latest/download/astra-db.mcpb) for a one-click install with a settings form |
+| **Claude Desktop** | MCP server in `claude_desktop_config.json` | Or open [`astra-db.mcpb`](https://github.com/jestatsio/astra-db-plugin/releases/latest/download/astra-db.mcpb) for a one-click install with a settings form |
 | **IBM Bob** | Skills, `/astra-*` commands, three custom modes, rules, hooks, MCP server in `~/.bob/` | [docs/bob.md](docs/bob.md) |
 | **ChatGPT, claude.ai** | Hosted server with OAuth | [docs/hosted.md](docs/hosted.md) |
 | **Any MCP client** | stdio server | `npx -y @erichare/astra-mcp` |

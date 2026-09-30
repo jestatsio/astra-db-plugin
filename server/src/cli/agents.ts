@@ -7,7 +7,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { editJsonc, onPath, readJsonc, readText, run } from "./fsutil.js";
 
-export const MARKETPLACE_REPO = "erichare/astra-db-plugin";
+export const MARKETPLACE_REPO = "jestatsio/astra-db-plugin";
 export const PLUGIN_ID = "astra-db@astra-db-marketplace";
 export const SERVER_KEY = "astra-db";
 export const SERVER_SPEC = "@erichare/astra-mcp@2";

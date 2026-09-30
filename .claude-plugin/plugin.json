@@ -1,19 +1,18 @@
 {
   "$schema": "https://json.schemastore.org/claude-code-plugin-manifest.json",
   "name": "astra-db",
-  "displayName": "Astra DB",
+  "displayName": "JEStats Astra DB Plugin",
   "version": "2.0.0",
-  "description": "Astra DB (DataStax / IBM) for coding agents: live database tools with interactive views, guarded writes and schema changes, vector and hybrid search, data-modeling and review skills, and 1,600+ idiomatic Data API snippets for Python, TypeScript, Java, C#, and Go.",
+  "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
   "author": {
-    "name": "Eric Hare",
-    "email": "ericrhare@gmail.com",
-    "url": "https://github.com/erichare"
+    "name": "JEStats",
+    "url": "https://jestats.io"
   },
-  "homepage": "https://github.com/erichare/astra-db-plugin",
-  "repository": "https://github.com/erichare/astra-db-plugin",
-  "documentationUrl": "https://github.com/erichare/astra-db-plugin#readme",
-  "supportUrl": "https://github.com/erichare/astra-db-plugin/issues",
-  "privacyPolicyUrl": "https://github.com/erichare/astra-db-plugin/blob/main/docs/privacy.md",
+  "homepage": "https://github.com/jestatsio/astra-db-plugin",
+  "repository": "https://github.com/jestatsio/astra-db-plugin",
+  "documentationUrl": "https://github.com/jestatsio/astra-db-plugin#readme",
+  "supportUrl": "https://github.com/jestatsio/astra-db-plugin/issues",
+  "privacyPolicyUrl": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md",
   "license": "Apache-2.0",
   "keywords": [
     "astra",

@@ -1,14 +1,4 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="color-scheme" content="light dark">
-<title>JEStats Astra DB Plugin · unofficial integration</title>
-<style>/*@css*/</style>
-</head>
-<body>
-<div class="publisher"><svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" aria-hidden="true">
+<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 64 64" role="img" aria-label="JEStats Astra DB Plugin">
   <rect width="64" height="64" rx="14" fill="#111827"/>
   <g fill="none" stroke="#FAF9F5" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
     <ellipse cx="24" cy="19" rx="12" ry="5"/>
@@ -20,8 +10,4 @@
   </g>
   <circle cx="44" cy="23" r="2" fill="#FAF9F5"/>
   <path d="M41 52h14" stroke="#FAF9F5" stroke-width="2" stroke-linecap="round"/>
-</svg><span>JEStats · unofficial Astra DB plugin</span></div>
-<main id="app" aria-live="polite"></main>
-<script>/*@js*/</script>
-</body>
-</html>
+</svg>

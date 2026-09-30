@@ -1,12 +1,14 @@
-# @erichare/astra-mcp
+# JEStats Astra DB Plugin · @erichare/astra-mcp
 
-Astra DB for AI agents: an MCP server with live data tools, guarded writes, vector and hybrid search, interactive [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) views, and about 1,660 bundled Data API examples. It also includes a one-command installer for Claude Code, Codex, Cursor, VS Code, Windsurf, Gemini CLI, Claude Desktop, and IBM Bob.
+Unofficial, community-maintained Astra DB integration by [JEStats](https://jestats.io), not affiliated with or endorsed by DataStax or IBM. An MCP server with live data tools, guarded writes, vector and hybrid search, interactive [MCP Apps](https://modelcontextprotocol.io/extensions/apps/overview) views, and about 1,660 bundled Data API examples. It also includes a one-command installer for Claude Code, Codex, Cursor, VS Code, Windsurf, Gemini CLI, Claude Desktop, and IBM Bob.
 
 ```bash
 npx -y @erichare/astra-mcp init
 ```
 
 `init` detects your agents and configures each one. Its `login` step then asks for an Astra application token with hidden input, lets you pick a database, and writes `ASTRA_DB_*` variables to a git-ignored `.env`. There's no restart: the server re-reads credentials on every call. Requires Node.js 20+.
+
+Already configured the Astra CLI? Use `init --no-login` to reuse your `.astrarc` profile directly, followed by `doctor`. Set `ASTRA_PROFILE` for a named profile and `ASTRA_DB_NAME` or `ASTRA_DB_API_ENDPOINT` when multiple databases are accessible. This avoids copying the CLI token into a second file. The npm package name stays unchanged for compatibility.
 
 ## Commands
 
@@ -38,6 +40,6 @@ Destructive operations need the user's confirmation, through elicitation or an e
 
 The package bundles everything into one file with no runtime dependencies. Releases after 2.0.0 are published from GitHub Actions with npm provenance.
 
-Documentation, the Claude Code and Codex plugin, and the hosted OAuth endpoint for ChatGPT and claude.ai: **[github.com/erichare/astra-db-plugin](https://github.com/erichare/astra-db-plugin)**.
+Documentation, the Claude Code and Codex plugin, and the hosted OAuth endpoint for ChatGPT and claude.ai: **[github.com/jestatsio/astra-db-plugin](https://github.com/jestatsio/astra-db-plugin)**.
 
 Apache-2.0. Includes documentation-derived examples vendored from [sl-at-ibm/astra-toolkit-skill](https://github.com/sl-at-ibm/astra-toolkit-skill); see NOTICE in the repository. Community project, not an official DataStax or IBM product.

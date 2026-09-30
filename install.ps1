@@ -1,5 +1,5 @@
 # Astra DB for AI agents — Windows installer.
-#   irm https://raw.githubusercontent.com/erichare/astra-db-plugin/main/install.ps1 | iex
+#   irm https://raw.githubusercontent.com/jestatsio/astra-db-plugin/main/install.ps1 | iex
 $ErrorActionPreference = "Stop"
 $package = "@erichare/astra-mcp@2"
 if (-not (Get-Command node -ErrorAction SilentlyContinue)) {
