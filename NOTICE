@@ -19,8 +19,10 @@ Modifications made in this repository since vendoring:
   consistent env var names in astra-cli/ and architecture/ READMEs.
 
 The upstream repository does not yet declare an explicit license; this
-redistribution is maintained in coordination with the upstream author, and
-this NOTICE will be updated when upstream licensing is formalized.
+redistribution is maintained in coordination with the upstream author.
+On 2026-10-07, the maintainer confirmed that the upstream author granted
+permission to redistribute the bundled toolkit and examples. This NOTICE
+will be updated when upstream licensing is formalized.
 
 The compiled MCP server (server/dist, published to npm) bundles third-party
 open-source packages; their license notices are collected in

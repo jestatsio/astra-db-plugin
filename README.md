@@ -15,6 +15,8 @@
   Claude Code · Codex · Cursor · VS Code · Windsurf · Gemini CLI · Claude Desktop · IBM Bob · ChatGPT
 </p>
 
+**Published by [JEStats](https://jestats.io). Maintained by Eric Hare.**
+
 **[JEStats](https://jestats.io) Astra DB Plugin is an unofficial, community-maintained integration. It is not affiliated with, endorsed by, or an official product of DataStax or IBM.**
 
 Give your coding agent a live view of your Astra DB. It can map a database, read a collection's real schema before writing code against it, run vector and hybrid searches, page through documents, and change data, asking you first before anything destructive. When it writes application code, it starts from canonical Data API snippets for Python, TypeScript, Java, C#, and Go instead of guessing.
@@ -141,7 +143,7 @@ With a token but no endpoint, the server picks your only active database, or the
 
 ## Documentation
 
-[Tools](docs/tools.md) · [Configuration](docs/configuration.md) · [Security](docs/security.md) · [Hosted server](docs/hosted.md) · [IBM Bob](docs/bob.md) · [Troubleshooting](docs/troubleshooting.md) · [Privacy](docs/privacy.md) · [Publishing](docs/publishing.md) · [Changelog](CHANGELOG.md)
+[Tools](docs/tools.md) · [Configuration](docs/configuration.md) · [Security](docs/security.md) · [Hosted server](docs/hosted.md) · [IBM Bob](docs/bob.md) · [Troubleshooting](docs/troubleshooting.md) · [Privacy](docs/privacy.md) · [Terms](docs/terms-of-service.md) · [Publishing](docs/publishing.md) · [Changelog](CHANGELOG.md)
 
 ## Contributing
 

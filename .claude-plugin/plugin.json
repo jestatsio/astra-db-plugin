@@ -3,7 +3,7 @@
   "name": "astra-db",
   "displayName": "JEStats Astra DB Plugin",
   "version": "2.1.0",
-  "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
+  "description": "Explore Astra DB with your coding agent: inspect schemas, browse data, run vector and hybrid searches, and make guarded changes. Includes interactive views and Data API examples. An unofficial integration by JEStats.",
   "author": {
     "name": "JEStats",
     "url": "https://jestats.io"
@@ -38,7 +38,7 @@
     "endpoint": {
       "type": "string",
       "title": "Data API endpoint",
-      "description": "Optional default database endpoint (https://…apps.astra.datastax.com). A project .env overrides it; tokens that see one database need none.",
+      "description": "Optional default database endpoint (https://\u2026apps.astra.datastax.com). A project .env overrides it; tokens that see one database need none.",
       "required": false
     },
     "keyspace": {
@@ -69,5 +69,7 @@
         "ASTRA_MCP_CLIENT": "claude-code"
       }
     }
-  }
+  },
+  "icon": "assets/icon-v2.png",
+  "termsOfServiceUrl": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/terms-of-service.md"
 }

@@ -1,5 +1,7 @@
 # Store submission draft
 
+For the October refresh, current portal observations, and public OpenAI package plan, see [Directory listing refresh](directory-update-2026-10-07.md). This document preserves the September assessment.
+
 **Last checked:** 2026-09-29. **Status:** copy and submission checklist for the proposed 2.1.0 release. No new official listing or store approval is asserted by this document.
 
 ## Public listing copy

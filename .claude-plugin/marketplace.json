@@ -4,14 +4,14 @@
     "name": "JEStats"
   },
   "metadata": {
-    "description": "Unofficial Astra DB integration by JEStats — skills, hooks, and the @erichare/astra-mcp server.",
+    "description": "Unofficial Astra DB integration by JEStats \u2014 skills, hooks, and the @erichare/astra-mcp server.",
     "version": "2.1.0"
   },
   "plugins": [
     {
       "name": "astra-db",
       "source": "./",
-      "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
+      "description": "Explore Astra DB with your coding agent: inspect schemas, browse data, run vector and hybrid searches, and make guarded changes. Includes interactive views and Data API examples. An unofficial integration by JEStats.",
       "category": "database",
       "keywords": [
         "astra",
