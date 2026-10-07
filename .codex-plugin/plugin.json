@@ -1,7 +1,7 @@
 {
   "name": "astra-db",
   "version": "2.1.0",
-  "description": "Unofficial JEStats integration for Astra DB: live database tools, interactive views, guarded writes, vector and hybrid search, data-modeling skills, and Data API examples in five languages.",
+  "description": "Explore Astra DB with your coding agent: inspect schemas, browse data, run vector and hybrid searches, and make guarded changes. Includes interactive views and Data API examples. An unofficial integration by JEStats.",
   "author": {
     "name": "JEStats",
     "url": "https://jestats.io"
@@ -57,8 +57,8 @@
   },
   "interface": {
     "displayName": "JEStats Astra DB Plugin",
-    "shortDescription": "Unofficial Astra DB tools by JEStats: explore, query, and vector-search with your coding agent.",
-    "longDescription": "Unofficial, community-maintained Astra DB integration by JEStats. Not affiliated with or endorsed by DataStax or IBM. Astra DB (DataStax / IBM) and HCD for Codex. The astra-db MCP server gives live tools — database overview, collection and table schemas, find, vector and hybrid search, counts, guarded inserts/updates/deletes, and schema changes that ask before anything destructive — plus canonical Data API snippets. Skills cover setup ($astra-db:setup — connect with `npx -y @erichare/astra-mcp login`, no token in chat), diagnosis ($astra-db:doctor), code review, data modeling, and migrations. Credentials come from your project's .env, environment, or Astra CLI profile.",
+    "shortDescription": "Explore and search Astra DB",
+    "longDescription": "Explore Astra DB with your coding agent. Inspect live collection and table schemas, browse documents, run vector and hybrid searches, and make guarded data changes. Compatible hosts show interactive database views. Data API examples help you write Python, TypeScript, Java, C#, and Go against the schema you actually have.\n\nSetup and diagnostic skills help connect your project using an Astra CLI profile, project environment, or supported host settings. Read-only mode is available. Destructive operations require confirmation. Enter credentials through setup or host configuration, never in chat.\n\nThis local Codex package includes credential hygiene hooks. The OpenAI public directory package uses the hosted MCP connection and is prepared separately.\n\nAn unofficial, community-maintained integration published by JEStats and maintained by Eric Hare. Not affiliated with or endorsed by DataStax or IBM.",
     "developerName": "JEStats",
     "category": "Developer Tools",
     "capabilities": [
@@ -73,10 +73,10 @@
     "logo": "./assets/icon-v2.png",
     "composerIcon": "./assets/icon-v2.png",
     "defaultPrompt": [
-      "Connect this project to my Astra DB database",
-      "Show me what's in my Astra DB database",
-      "Create a vector collection for these documents and write Python code to search it",
-      "Review this project's Astra DB data model"
-    ]
+      "Show the collections and tables in my Astra DB database",
+      "Describe this collection before writing code against it",
+      "Find documents similar to this query"
+    ],
+    "termsOfServiceURL": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/terms-of-service.md"
   }
 }
