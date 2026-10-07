@@ -1,8 +1,6 @@
 # JEStats Astra DB Plugin Terms of Service
 
-**Draft for publisher review. Not yet in effect.**
-
-**Effective date:** To be set when approved and published.
+**Effective date:** October 7, 2026.
 
 These terms govern the JEStats-operated hosted Astra DB integration and related support provided by **J&E Statistical Consulting, LLC**, a Washington limited liability company, doing business as **JEStats**. Eric Hare maintains the integration on behalf of JEStats.
 

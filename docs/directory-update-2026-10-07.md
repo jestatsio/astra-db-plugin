@@ -41,7 +41,7 @@ The public package should contain the original JEStats icon, synthetic UI screen
 ## Required inputs before submission
 
 - Verify JEStats as the OpenAI developer identity.
-- Review and publish the [draft terms](terms-of-service.md) for J&E Statistical Consulting, LLC. Set their effective date before using the main-branch URL in a submission.
+- The publisher approved the [terms](terms-of-service.md) for J&E Statistical Consulting, LLC on October 7, 2026. Publish them and verify their main-branch URL before submission.
 - The maintainer confirmed upstream redistribution permission on 2026-10-07. Retain that permission record alongside the attribution in NOTICE.
 - Complete domain verification using the portal's exact challenge value.
 - Create a dedicated populated reviewer database/account. Never give reviewers the maintainer's production database, credentials, or real personal data.
