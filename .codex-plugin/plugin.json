@@ -6,7 +6,7 @@
     "name": "JEStats",
     "url": "https://jestats.io"
   },
-  "homepage": "https://github.com/jestatsio/astra-db-plugin",
+  "homepage": "https://jestatsio.github.io/astra-db-plugin/",
   "repository": "https://github.com/jestatsio/astra-db-plugin",
   "license": "Apache-2.0",
   "keywords": [
@@ -66,7 +66,7 @@
       "Read",
       "Write"
     ],
-    "websiteURL": "https://github.com/jestatsio/astra-db-plugin",
+    "websiteURL": "https://jestatsio.github.io/astra-db-plugin/",
     "supportURL": "https://github.com/jestatsio/astra-db-plugin/issues",
     "privacyPolicyURL": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md",
     "brandColor": "#D9531E",

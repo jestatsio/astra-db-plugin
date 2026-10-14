@@ -8,9 +8,9 @@
     "name": "JEStats",
     "url": "https://jestats.io"
   },
-  "homepage": "https://github.com/jestatsio/astra-db-plugin",
+  "homepage": "https://jestatsio.github.io/astra-db-plugin/",
   "repository": "https://github.com/jestatsio/astra-db-plugin",
-  "documentationUrl": "https://github.com/jestatsio/astra-db-plugin#readme",
+  "documentationUrl": "https://jestatsio.github.io/astra-db-plugin/",
   "supportUrl": "https://github.com/jestatsio/astra-db-plugin/issues",
   "privacyPolicyUrl": "https://github.com/jestatsio/astra-db-plugin/blob/main/docs/privacy.md",
   "license": "Apache-2.0",

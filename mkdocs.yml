@@ -1,0 +1,56 @@
+site_name: JEStats Astra DB Plugin
+site_description: Explore your Astra DB with your coding agent. Live tools, interactive views, and guarded changes.
+site_url: https://jestatsio.github.io/astra-db-plugin/
+repo_url: https://github.com/jestatsio/astra-db-plugin
+repo_name: jestatsio/astra-db-plugin
+edit_uri: edit/main/website/
+docs_dir: website
+site_dir: .site-build
+exclude_docs: |
+  overrides/
+theme:
+  name: material
+  custom_dir: website/overrides
+  logo: assets/icon.png
+  favicon: assets/icon.png
+  font: false
+  icon:
+    repo: fontawesome/brands/github
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      toggle: {icon: material/weather-night, name: Switch to dark mode}
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      toggle: {icon: material/weather-sunny, name: Switch to light mode}
+  features:
+    - navigation.tabs
+    - navigation.sections
+    - navigation.top
+    - navigation.footer
+    - search.suggest
+    - search.highlight
+    - content.code.copy
+    - content.tabs.link
+plugins:
+  - search
+extra_css:
+  - stylesheets/extra.css
+markdown_extensions:
+  - attr_list
+  - md_in_html
+  - admonition
+  - tables
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - toc:
+      permalink: true
+nav:
+  - Home: index.md
+  - Get started: install.md
+  - Workflows: workflows.md
+  - Reference & support: reference.md
+copyright: Astra DB Plugin by JEStats · Apache-2.0 licensed
