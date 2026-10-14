@@ -8,3 +8,6 @@ evals/results/
 *.pyc
 server/.coverage
 .coverage
+
+# Documentation build
+.site-build/

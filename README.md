@@ -1,3 +1,5 @@
+<p align="center"><img src="assets/icon-v2.png" alt="JEStats Astra DB Plugin icon" width="88" height="88"></p>
+
 <p align="center">
   <img src="assets/banner-v2.svg" alt="JEStats Astra DB Plugin — unofficial Astra DB integration for coding agents" width="100%">
 </p>
@@ -157,3 +159,9 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the layout and checks, and [AGENTS.md
 ## License and provenance
 
 The plugin, server, installer, hooks, and assets are [Apache-2.0](LICENSE). The `astra-toolkit` skill content is vendored from [sl-at-ibm/astra-toolkit-skill](https://github.com/sl-at-ibm/astra-toolkit-skill) and derives from the [DataStax documentation](https://docs.datastax.com); the changes made here are listed in [NOTICE](NOTICE). This is a community project, not an official DataStax, IBM, Anthropic, or OpenAI product. Product names and logos identify compatibility only and are trademarks of their owners.
+
+## Documentation
+
+[Read the documentation](https://jestatsio.github.io/astra-db-plugin/) for installation, workflows, and reference guides. The [documentation source](website/index.md) is maintained in this repository.
+
+Build locally with `python -m pip install -r docs-requirements.txt` and `mkdocs build --strict`; preview with `mkdocs serve`. GitHub Pages uses the **GitHub Actions** source and deploys after changes reach `main`.
